@@ -1,7 +1,7 @@
 {
-	"name": "papaparse",
+	"name": "@severo_tests/papaparse",
 	"version": "5.5.3",
-	"description": "Fast and powerful CSV parser for the browser that supports web workers and streaming large files. Converts CSV to JSON and JSON to CSV.",
+	"description": "Fork of papaparse that adds a byte offset config option. Fast and powerful CSV parser for the browser that supports web workers and streaming large files. Converts CSV to JSON and JSON to CSV.",
 	"keywords": [
 		"csv",
 		"parser",

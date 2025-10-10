@@ -1,6 +1,11 @@
 Parse CSV with JavaScript
 ========================================
 
+This repository is a fork of Papaparse which adds:
+- `firstChunkOffset` configuration option for the parse method, only for the streaming mode, which sets the byte offset of the first chunk to parse. This is useful when resuming a paused parse from a specific byte offset in the file or remote URL.
+
+---
+
 Papa Parse is the fastest in-browser CSV (or delimited text) parser for JavaScript. It is reliable and correct according to [RFC 4180](https://tools.ietf.org/html/rfc4180), and it comes with these features:
 
 - Easy to use

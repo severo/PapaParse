@@ -495,7 +495,7 @@ License: MIT
 		this._baseIndex = 0;
 		this._partialLine = '';
 		this._rowCount = 0;
-		this._start = 0;
+		this._start = config.firstChunkOffset !== undefined ? +config.firstChunkOffset : 0; // SL: change to upstream PapaParse
 		this._nextChunk = null;
 		this.isFirstChunk = true;
 		this._completeResults = {
