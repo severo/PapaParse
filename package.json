@@ -1,6 +1,6 @@
 {
 	"name": "@severo_tests/papaparse",
-	"version": "5.5.3",
+	"version": "5.5.4",
 	"description": "Fork of papaparse that adds a byte offset config option. Fast and powerful CSV parser for the browser that supports web workers and streaming large files. Converts CSV to JSON and JSON to CSV.",
 	"keywords": [
 		"csv",
@@ -36,6 +36,7 @@
 	"license": "MIT",
 	"main": "papaparse.js",
 	"browser": "papaparse.min.js",
+	"types": "types.d.ts",
 	"devDependencies": {
 		"chai": "^4.2.0",
 		"connect": "^3.3.3",
