@@ -50,14 +50,6 @@ Papa.parse(file, {
 	complete: function(results) {
 		console.log("Finished:", results.data);
 	}
-});
-
-// Stream big file in worker thread
-Papa.parse(bigFile, {
-	worker: true,
-	step: function(results) {
-		console.log("Row:", results.data);
-	}
 });</code></pre>
 						</div>
 					</div>
@@ -141,7 +133,6 @@ Papa.parse(bigFile, {
 						</div>
 						<div class="grid-33">
 							<li><a href="#stream">Stream</a> local and remote files</li>
-							<li><a href="#worker">Multi-threaded</a></li>
 							<li><a href="#header">Header row</a> support</li>
 							<li><a href="#type-conversion">Type conversion</a></li>
 						</div>
@@ -324,30 +315,6 @@ console.log(results.meta.delimiter);
 						</div>
 					</div>
 				</section>
-
-
-
-				<section id="worker">
-					<div class="grid-container narrow-grid">
-						<div class="grid-100">
-							<h4>Multi-Threading</h4>
-							<h5>"Lovely. Now my web page locked up."</h5>
-
-							<p>That happens when a long-running script is executing in the same thread as the page. Use a <a href="https://developer.mozilla.org/en-US/docs/Web/API/Worker">Worker</a> thread by specifying <code>worker: true</code>. It may take slightly longer, but your page will stay reactive.</p>
-
-							<pre><code class="language-javascript">Papa.parse(bigFile, {
-	worker: true,
-	step: function(row) {
-		console.log("Row:", row.data);
-	},
-	complete: function() {
-		console.log("All done!");
-	}
-});</code></pre>
-						</div>
-					</div>
-				</section>
-
 
 
 

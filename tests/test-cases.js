@@ -1700,33 +1700,9 @@ describe('Parse Tests', function() {
 // Tests for Papa.parse() that involve asynchronous operation
 var PARSE_ASYNC_TESTS = [
 	{
-		description: "Simple worker",
-		input: "A,B,C\nX,Y,Z",
-		config: {
-			worker: true,
-		},
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
-	},
-	{
 		description: "Simple download",
 		input: BASE_PATH + "sample.csv",
 		config: {
-			download: true
-		},
-		disabled: !XHR_ENABLED,
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
-	},
-	{
-		description: "Simple download + worker",
-		input: BASE_PATH + "sample.csv",
-		config: {
-			worker: true,
 			download: true
 		},
 		disabled: !XHR_ENABLED,
@@ -1747,35 +1723,10 @@ var PARSE_ASYNC_TESTS = [
 		}
 	},
 	{
-		description: "Simple file + worker",
-		disabled: !FILES_ENABLED,
-		input: FILES_ENABLED ? new File(["A,B,C\nX,Y,Z"], "sample.csv") : false,
-		config: {
-			worker: true,
-		},
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
-	},
-	{
 		description: "File with a few regular and lots of empty lines",
 		disabled: !FILES_ENABLED,
 		input: FILES_ENABLED ? new File(["A,B,C\nX,Y,Z\n" + new Array(500000).fill(",,").join("\n")], "sample.csv") : false,
 		config: {
-			skipEmptyLines: "greedy"
-		},
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
-	},
-	{
-		description: "File with a few regular and lots of empty lines + worker",
-		disabled: !FILES_ENABLED,
-		input: FILES_ENABLED ? new File(["A,B,C\nX,Y,Z\n" + new Array(500000).fill(",,").join("\n")], "sample.csv") : false,
-		config: {
-			worker: true,
 			skipEmptyLines: "greedy"
 		},
 		expected: {
@@ -2200,39 +2151,6 @@ var CUSTOM_TESTS = [
 		}
 	},
 	{
-		description: "Data is correctly parsed with steps and worker (headers)",
-		expected: [{One: 'A', Two: 'b', Three: 'c'}, {One: 'd', Two: 'E', Three: 'f'}],
-		run: function(callback) {
-			var data = [];
-			Papa.parse('One,Two,Three\nA,b,c\nd,E,f', {
-				header: true,
-				worker: true,
-				step: function(results) {
-					data.push(results.data);
-				},
-				complete: function() {
-					callback(data);
-				}
-			});
-		}
-	},
-	{
-		description: "Data is correctly parsed with steps and worker",
-		expected: [['A', 'b', 'c'], ['d', 'E', 'f']],
-		run: function(callback) {
-			var data = [];
-			Papa.parse('A,b,c\nd,E,f', {
-				worker: true,
-				step: function(results) {
-					data.push(results.data);
-				},
-				complete: function() {
-					callback(data);
-				}
-			});
-		}
-	},
-	{
 		description: "Data is correctly parsed with steps when skipping empty lines",
 		expected: [['A', 'b', 'c'], ['d', 'E', 'f']],
 		run: function(callback) {
@@ -2316,25 +2234,6 @@ var CUSTOM_TESTS = [
 			Papa.parse(BASE_PATH + "long-sample.csv", {
 				download: true,
 				chunkSize: 500,
-				step: function(response) {
-					updates.push(response.meta.cursor);
-				},
-				complete: function() {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
-		description: "Step exposes cursor for workers",
-		expected: [452, 452, 452, 865, 865, 865, 1209, 1209],
-		disabled: !XHR_ENABLED,
-		run: function(callback) {
-			var updates = [];
-			Papa.parse(BASE_PATH + "long-sample.csv", {
-				download: true,
-				chunkSize: 500,
-				worker: true,
 				step: function(response) {
 					updates.push(response.meta.cursor);
 				},
@@ -2478,26 +2377,6 @@ var CUSTOM_TESTS = [
 				chunkSize: 6,
 				complete: function(response) {
 					callback(response.meta.aborted);
-				}
-			});
-		}
-	},
-	{
-		description: "Step functions can abort workers",
-		expected: 1,
-		disabled: !XHR_ENABLED,
-		run: function(callback) {
-			var updates = 0;
-			Papa.parse(BASE_PATH + "long-sample.csv", {
-				worker: true,
-				download: true,
-				chunkSize: 500,
-				step: function(response, handle) {
-					updates++;
-					handle.abort();
-				},
-				complete: function() {
-					callback(updates);
 				}
 			});
 		}

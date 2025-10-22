@@ -103,7 +103,7 @@
 						<ul>
 							<li><code>csvString</code> is a string of delimited text to be parsed.</li>
 							<li><code>config</code> is an optional <a href="#config">config object</a>.</li>
-							<li>Returns a <a href="#results">parse results</a> object (if not streaming or using worker).</li>
+							<li>Returns a <a href="#results">parse results</a> object (if not streaming).</li>
 						</ul>
 					</div>
 					<div class="clear"></div>
@@ -435,7 +435,6 @@ var csv = Papa.unparse({
 	dynamicTyping: false,
 	preview: 0,
 	encoding: "",
-	worker: false,
 	comments: false,
 	step: undefined,
 	complete: undefined,
@@ -538,14 +537,6 @@ var csv = Papa.unparse({
 								</td>
 								<td>
 									The encoding to use when opening local files. If specified, it must be a value supported by the FileReader API.
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<code>worker</code>
-								</td>
-								<td>
-									Whether or not to use a <a href="/faq#workers">worker thread</a>. Using a worker will keep your page reactive, but may be slightly slower.
 								</td>
 							</tr>
 							<tr>
@@ -893,12 +884,6 @@ var csv = Papa.unparse({
 								<td><code>Papa.UNIT_SEP</code></td>
 								<td>
 									Also sometimes used as a delimiting character. ASCII code 31.
-								</td>
-							</tr>
-							<tr>
-								<td><code>Papa.WORKERS_SUPPORTED</code></td>
-								<td>
-									Whether or not the browser supports HTML5 Web Workers. If false, <code>worker: true</code> will have no effect.
 								</td>
 							</tr>
 						</table>

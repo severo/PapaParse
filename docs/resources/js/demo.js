@@ -155,7 +155,7 @@ $(function()
 			start = now();
 			var results = Papa.parse(input, config);
 			console.log("Synchronous results:", results);
-			if (config.worker || config.download)
+			if (config.download)
 				console.log("Running...");
 		}
 	});
@@ -194,7 +194,6 @@ function buildConfig()
 		preview: parseInt($('#preview').val() || 0),
 		step: $('#stream').prop('checked') ? stepFn : undefined,
 		encoding: $('#encoding').val(),
-		worker: $('#worker').prop('checked'),
 		comments: $('#comments').val(),
 		complete: completeFn,
 		error: errorFn,

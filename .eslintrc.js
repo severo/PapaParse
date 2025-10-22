@@ -5,7 +5,7 @@ module.exports = {
 	"env": {
 		"es6": true,
 		"browser": true,
-		"worker": true,
+		// "worker": true,
 		"node": true
 	},
 	"extends": "eslint:recommended",

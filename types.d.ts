@@ -26,15 +26,6 @@ export function parse<T, TFile extends LocalFile = LocalFile>(file: TFile, confi
  */
 // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
 export function parse<T>(url: string, config: ParseRemoteConfig<T>): void;
-/**
- * Parse string in web worker
- * @param csvString a string of delimited text to be parsed.
- * @param config an optional config object.
- * @returns Doesn't return anything. Results are provided asynchronously to a callback function.
- */
-/* eslint-disable @definitelytyped/no-unnecessary-generics */
-// tslint:disable-next-line:unified-signatures
-export function parse<T>(csvString: string, config: ParseWorkerConfig<T> & { download?: false | undefined }): void;
 /* eslint-enable @definitelytyped/no-unnecessary-generics */
 /**
  * Parse string
@@ -44,7 +35,7 @@ export function parse<T>(csvString: string, config: ParseWorkerConfig<T> & { dow
  */
 export function parse<T>(
     csvString: string,
-    config?: ParseConfig<T> & { download?: false | undefined; worker?: false | undefined },
+    config?: ParseConfig<T> & { download?: false | undefined; },
 ): ParseResult<T>;
 /**
  * Parse string, remote files or  local files
@@ -57,8 +48,7 @@ export function parse<T>(
     config:
         & ParseLocalConfig<T, LocalFile>
         & (
-            | (ParseConfig<T> & { download?: false | undefined; worker?: false | undefined })
-            | (ParseWorkerConfig<T> & { download?: false | undefined })
+            | (ParseConfig<T> & { download?: false | undefined; })
             | ParseRemoteConfig<T>
         ),
 ): void;
@@ -82,11 +72,6 @@ export const RECORD_SEP: "\x1E";
 
 /** Also sometimes used as a delimiting character. ASCII code 31. */
 export const UNIT_SEP: "\x1F";
-/**
- * Whether or not the browser supports HTML5 Web Workers.
- * If false, `worker: true` will have no effect.
- */
-export const WORKERS_SUPPORTED: boolean;
 
 /**
  * Configurable Properties
@@ -247,28 +232,8 @@ export interface ParseConfig<T = any, TInput = undefined> {
     skipFirstNLines?: number | undefined;
 }
 
-export interface ParseWorkerConfig<T = any> extends ParseConfig<T> {
-    /**
-     * Whether or not to use a worker thread.
-     * Using a worker will keep your page reactive, but may be slightly slower.
-     */
-    worker: true;
-    /**
-     * The callback to execute when parsing is complete.
-     * It receives the parse results. If parsing a local file, the File is passed in, too.
-     * When streaming, parse results are not available in this callback.
-     */
-    complete(results: ParseResult<T>): void;
-}
-
 // Base interface for all async parsing
 interface ParseAsyncConfigBase<T = any, TInput = undefined> extends ParseConfig<T, TInput> {
-    /**
-     * Whether or not to use a worker thread.
-     * Using a worker will keep your page reactive, but may be slightly slower.
-     * @default false
-     */
-    worker?: boolean | undefined;
     /**
      * Overrides `Papa.LocalChunkSize` and `Papa.RemoteChunkSize`.
      */
