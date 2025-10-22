@@ -134,51 +134,6 @@ describe('PapaParse', function() {
 		});
 	});
 
-	it('piped streaming CSV should be correctly parsed', function(done) {
-		var data = [];
-		var readStream = fs.createReadStream(__dirname + '/long-sample.csv', 'utf8');
-		var csvStream = readStream.pipe(Papa.parse(Papa.NODE_STREAM_INPUT));
-		csvStream.on('data', function(item) {
-			data.push(item);
-		});
-		csvStream.on('end', function() {
-			assert.deepEqual(data[0], [
-				'Grant',
-				'Dyer',
-				'Donec.elementum@orciluctuset.example',
-				'2013-11-23T02:30:31-08:00',
-				'2014-05-31T01:06:56-07:00',
-				'Magna Ut Associates',
-				'ljenkins'
-			]);
-			assert.deepEqual(data[7], [
-				'Talon',
-				'Salinas',
-				'posuere.vulputate.lacus@Donecsollicitudin.example',
-				'2015-01-31T09:19:02-08:00',
-				'2014-12-17T04:59:18-08:00',
-				'Aliquam Iaculis Incorporate',
-				'Phasellus@Quisquetincidunt.example'
-			]);
-			done();
-		});
-	});
-
-
-	it('piped streaming CSV should be correctly parsed when header is true', function(done) {
-		var data = [];
-		var readStream = fs.createReadStream(__dirname + '/sample-header.csv', 'utf8');
-		var csvStream = readStream.pipe(Papa.parse(Papa.NODE_STREAM_INPUT, {header: true}));
-		csvStream.on('data', function(item) {
-			data.push(item);
-		});
-		csvStream.on('end', function() {
-			assert.deepEqual(data[0], { title: 'test title 01', name: 'test name 01' });
-			assert.deepEqual(data[1],  { title: '', name: 'test name 02' });
-			done();
-		});
-	});
-
 	it('should support pausing and resuming on same tick when streaming', function(done) {
 		var rows = [];
 		Papa.parse(fs.createReadStream(__dirname + '/long-sample.csv', 'utf8'), {

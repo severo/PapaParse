@@ -62,15 +62,6 @@ export function parse<T>(
             | ParseRemoteConfig<T>
         ),
 ): void;
-/**
- * Parse in a node streaming style
- * @param stream `NODE_STREAM_INPUT`
- * @param config a config object.
- * @returns a node duplex stream.
- *
- * @see https://github.com/mholt/PapaParse#papa-parse-for-node
- */
-export function parse(stream: typeof NODE_STREAM_INPUT, config?: ParseConfig): Duplex;
 
 /**
  * Unparses javascript data objects and returns a csv string
@@ -96,11 +87,6 @@ export const UNIT_SEP: "\x1F";
  * If false, `worker: true` will have no effect.
  */
 export const WORKERS_SUPPORTED: boolean;
-
-/**
- * When passed to Papa Parse a Readable stream is returned.
- */
-export const NODE_STREAM_INPUT: unique symbol;
 
 /**
  * Configurable Properties
