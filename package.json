@@ -13,13 +13,7 @@
 		"auto-detect",
 		"comma",
 		"tab",
-		"file",
-		"filereader",
-		"stream",
-		"thread",
-		"threading",
-		"multi-threaded",
-		"jquery-plugin"
+		"stream"
 	],
 	"homepage": "https://www.papaparse.com/",
 	"repository": {

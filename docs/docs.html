@@ -60,7 +60,6 @@
 								<li><a href="#strings">Parse string</a></li>
 								<li><a href="#local-files">Parse local file</a></li>
 								<li><a href="#remote-files">Parse remote file</a></li>
-								<li><a href="#jquery">Using jQuery to select files</a></li>
 							</ul>
 						</li>
 						<li><a href="#json-to-csv">Convert JSON to CSV</a></li>
@@ -144,50 +143,6 @@
 							<li><code>url</code> is the path or URL to the file to download.</li>
 							<li>The second argument is a <a href="#config">config object</a> where <code>download: true</code> is set.</li>
 							<li>Doesn't return anything. Results are provided asynchronously to a callback function.</li>
-						</ul>
-					</div>
-					<div class="clear"></div>
-
-
-
-					<div class="grid-100">
-						<h5 id="jquery">Using jQuery to select files</h5>
-					</div>
-
-					<div class="grid-50">
-						<pre><code class="language-javascript">$('input[type=file]').parse({
-	config: {
-		<span class="comment">// base <a href="#config">config</a> to use for each file</span>
-	},
-	before: function(file, inputElem)
-	{
-		<span class="comment">// executed before parsing each file begins;
-		// what you return here controls the flow</span>
-	},
-	error: function(err, file, inputElem, reason)
-	{
-		<span class="comment">// executed if an error occurs while loading the file,
-		// or if before callback aborted for some reason</span>
-	},
-	complete: function()
-	{
-		<span class="comment">// executed after all files are complete</span>
-	}
-});</code></pre>
-					</div>
-					<div class="grid-50">
-						<ul>
-							<li>Select the file input elements with files you want to parse.</li>
-							<li>
-								<code>before</code> is an optional callback that lets you inspect each file before parsing begins. Return an object like:
-<pre><code class="language-javascript">{
-	action: "abort",
-	reason: "Some reason",
-	config: <span class="comment">// altered config...</span>
-}</code></pre>
-								to alter the flow of parsing. Actions can be <code>"abort"</code> to skip this and all other files in the queue, <code>"skip"</code> to skip just this file, or <code>"continue"</code> to carry on (equivalent to returning nothing). <code>reason</code> can be a reason for aborting. <code>config</code> can be a modified <a href="#config">configuration</a> for parsing just this file.
-							</li>
-							<li>The <code>complete</code> callback shown here is executed after <i>all</i> files are finished and does not receive any data. Use the complete callback in <a href="#config">config</a> for per-file results.</li>
 						</ul>
 					</div>
 					<div class="clear"></div>

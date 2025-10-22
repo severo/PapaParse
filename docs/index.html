@@ -129,7 +129,6 @@ var data = Papa.parse(csv);</code></pre>
 							<li>Skip <a href="#comments">commented lines</a></li>
 							<li>Fast mode</li>
 							<li>Graceful <a href="#errors">error</a> handling</li>
-							<li>Optional <a href="#jquery">sprinkle</a> of jQuery</li>
 						</div>
 
 						<div class="clear"></div>
@@ -362,31 +361,6 @@ var results = Papa.parse(csv, {
 	message: "Expected 3 fields, but parsed 4",
 	row: 1
 }</code></pre>
-						</div>
-					</div>
-				</section>
-
-
-
-
-				<section id="jquery">
-					<div class="grid-container narrow-grid">
-						<div class="grid-100">
-							<h4>jQuery Plugin</h4>
-							<h5>"Can I use Papa with jQuery?"</h5>
-
-							<p>Sure, but it's not required. You can use jQuery to select file input elements and then parse their files. Papa exposes its file parsing API as a jQuery plugin only when jQuery is defined. Papa Parse has <b>no dependencies</b>.</p>
-
-							<pre><code class="language-javascript">$("input[type=file]").parse({
-	config: {
-		complete: function(results, file) {
-			console.log("This file done:", file, results);
-		}
-	},
-	complete: function() {
-		console.log("All files done!");
-	}
-});</code></pre>
 						</div>
 					</div>
 				</section>
