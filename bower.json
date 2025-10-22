@@ -17,12 +17,9 @@
 		"auto-detect",
 		"comma",
 		"tab",
-		"pipe",
 		"file",
 		"filereader",
 		"stream",
-		"worker",
-		"workers",
 		"ajax",
 		"thread",
 		"threading",
@@ -34,7 +31,6 @@
 		"node_modules",
 		"bower_components",
 		"test",
-		"tests",
-		"player"
+		"tests"
 	]
 }

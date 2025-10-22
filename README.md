@@ -9,19 +9,17 @@ This repository is a fork of Papaparse which adds:
 Papa Parse is the fastest in-browser CSV (or delimited text) parser for JavaScript. It is reliable and correct according to [RFC 4180](https://tools.ietf.org/html/rfc4180), and it comes with these features:
 
 - Easy to use
-- Parse CSV files directly (local or over the network)
+- Parse CSV files directly (over the network)
 - Fast mode
 - Stream large files (even via HTTP)
 - Reverse parsing (converts JSON to CSV)
 - Auto-detect delimiter
-- Worker threads to keep your web page reactive
 - Header row support
-- Pause, resume, abort
+- Abort
 - Can convert numbers and booleans to their types
-- Optional jQuery integration to get files from `<input type="file">` elements
 - One of the only parsers that correctly handles line-breaks and quotations
 
-Papa Parse has **no dependencies** - not even jQuery.
+Papa Parse has **no dependencies**.
 
 Install
 -------
@@ -39,9 +37,7 @@ Usage
 ```js
 import Papa from 'papaparse';
 
-Papa.parse(file, config);
-    
-const csv = Papa.unparse(data[, config]);
+Papa.parse(url, config);
 ```
 
 Homepage & Demo
@@ -60,9 +56,7 @@ The website is hosted on [Github Pages](https://pages.github.com/). Its content 
 Papa Parse for Node
 --------------------
 
-Papa Parse can parse a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) instead of a [File](https://www.w3.org/TR/FileAPI/) when used in Node.js environments (in addition to plain strings). In this mode, `encoding` must, if specified, be a Node-supported character encoding. The `Papa.LocalChunkSize`, `Papa.RemoteChunkSize` , `download`, `withCredentials` and `worker` config options are unavailable.
-
-Papa Parse can also parse in a node streaming style which makes `.pipe` available.  Simply pipe the [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) to the stream returned from `Papa.parse(Papa.NODE_STREAM_INPUT, options)`.  The `Papa.LocalChunkSize`, `Papa.RemoteChunkSize` , `download`, `withCredentials`, `worker`, `step`, and `complete` config options are unavailable.  To register a callback with the stream to process data, use the `data` event like so: `stream.on('data', callback)` and to signal the end of stream, use the 'end' event like so: `stream.on('end', callback)`.
+Papa Parse can parse a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) instead of a [File](https://www.w3.org/TR/FileAPI/) when used in Node.js environments (in addition to plain strings). In this mode, `encoding` must, if specified, be a Node-supported character encoding. The `Papa.RemoteChunkSize` , `download` and `withCredentials` config options are unavailable.
 
 Get Started
 -----------
