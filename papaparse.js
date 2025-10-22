@@ -521,7 +521,7 @@ License: MIT
 			this._partialLine = '';
 			var results = this._handle.parse(aggregate, this._baseIndex, !this._finished);
 
-			if (this._handle.paused() || this._handle.aborted()) {
+			if (this._handle.aborted()) {
 				this._halted = true;
 				return;
 			}
@@ -550,7 +550,7 @@ License: MIT
 			else if (isFunction(this._config.chunk) && !isFakeChunk)
 			{
 				this._config.chunk(results, this._handle);
-				if (this._handle.paused() || this._handle.aborted()) {
+				if (this._handle.aborted()) {
 					this._halted = true;
 					return;
 				}
@@ -569,7 +569,7 @@ License: MIT
 				this._completed = true;
 			}
 
-			if (!finishedIncludingPreview && (!results || !results.meta.paused))
+			if (!finishedIncludingPreview)
 				this._nextChunk();
 
 			return results;
@@ -828,18 +828,6 @@ License: MIT
 		var parseOnData = true;
 		var streamHasEnded = false;
 
-		this.pause = function()
-		{
-			ChunkStreamer.prototype.pause.apply(this, arguments);
-			this._input.pause();
-		};
-
-		this.resume = function()
-		{
-			ChunkStreamer.prototype.resume.apply(this, arguments);
-			this._input.resume();
-		};
-
 		this.stream = function(stream)
 		{
 			this._input = stream;
@@ -925,7 +913,6 @@ License: MIT
 		var _rowCounter = 0;	// Number of rows that have been parsed so far
 		var _input;				// The input being parsed
 		var _parser;			// The core parser being used
-		var _paused = false;	// Whether we are paused or not
 		var _aborted = false;	// Whether the parser has aborted or not
 		var _delimiterError;	// Temporary state between delimiter detection and processing results
 		var _fields = [];		// Fields are from the header row of the input, if there is one
@@ -1001,34 +988,7 @@ License: MIT
 			_parser = new Parser(parserConfig);
 			_results = _parser.parse(_input, baseIndex, ignoreLastRow);
 			processResults();
-			return _paused ? { meta: { paused: true } } : (_results || { meta: { paused: false } });
-		};
-
-		this.paused = function()
-		{
-			return _paused;
-		};
-
-		this.pause = function()
-		{
-			_paused = true;
-			_parser.abort();
-
-			// If it is streaming via "chunking", the reader will start appending correctly already so no need to substring,
-			// otherwise we can get duplicate content within a row
-			_input = isFunction(_config.chunk) ? "" : _input.substring(_parser.getCharIndex());
-		};
-
-		this.resume = function()
-		{
-			if(self.streamer._halted) {
-				_paused = false;
-				self.streamer.parseChunk(_input, true);
-			} else {
-				// Bugfix: #636 In case the processing hasn't halted yet
-				// wait for it to halt in order to resume
-				setTimeout(self.resume, 3);
-			}
+			return (_results || { meta: {} });
 		};
 
 		this.aborted = function()
@@ -1604,7 +1564,7 @@ License: MIT
 				if (typeof value === 'undefined')
 					value = input.substring(cursor);
 				row.push(value);
-				cursor = inputLen;	// important in case parsing is paused
+				cursor = inputLen;	// important in case parsing is paused (TODO(SL): not implemented anymore, should we remove?)
 				pushRow(row);
 				if (stepIsFunction)
 					doStep();
@@ -1738,8 +1698,6 @@ License: MIT
 
 			var handle = {
 				abort: abort,
-				pause: notImplemented,
-				resume: notImplemented
 			};
 
 			if (isFunction(worker.userStep))
@@ -1773,10 +1731,6 @@ License: MIT
 			worker.userComplete(results);
 		worker.terminate();
 		delete workers[workerId];
-	}
-
-	function notImplemented() {
-		throw new Error('Not implemented.');
 	}
 
 	/** Callback when worker thread receives a message */

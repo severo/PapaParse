@@ -129,9 +129,6 @@ export class Parser {
 
     // Gets the cursor position
     getCharIndex(): number;
-
-    pause(): void;
-    resume(): void;
 }
 
 export interface ParseConfig<T = any, TInput = undefined> {
@@ -227,7 +224,6 @@ export interface ParseConfig<T = any, TInput = undefined> {
      * To stream the input, define a callback function.
      * Streaming is necessary for large files which would otherwise crash the browser.
      * You can call parser.abort() to abort parsing.
-     * And, except when using a Web Worker, you can call parser.pause() to pause it, and parser.resume() to resume.
      */
     step?(results: ParseStepResult<T>, parser: Parser): void;
     /**
