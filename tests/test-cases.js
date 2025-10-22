@@ -1384,53 +1384,7 @@ var PARSE_TESTS = [
 			data: [['a', 'b', 'c\n'], ['d', 'e', 'f']],
 			errors: []
 		}
-	},
-	{
-		description: "Skip First N number of lines , with header and 2 rows",
-		input: 'a,b,c,d\n1,2,3,4',
-		config: { header: true, skipFirstNLines: 1 },
-		expected: {
-			data: [],
-			errors: []
-		}
-	},
-	{
-		description: "Skip First N number of lines , with header and 2 rows",
-		input: 'to-be-ignored\na,b,c,d\n1,2,3,4',
-		config: { header: true, skipFirstNLines: 1 },
-		expected: {
-			data: [{a: '1', b: '2', c: '3', d: '4'}],
-			errors: []
-		}
-	},
-	{
-		description: "Skip First N number of lines , with header false",
-		input: 'a,b,c,d\n1,2,3,4\n4,5,6,7',
-		config: { header: false, skipFirstNLines: 1 },
-		expected: {
-			data: [['1','2','3','4'],['4','5','6','7']],
-			errors: []
-		}
-	},
-	{
-		description: "Skip First N number of lines , with header false and skipFirstNLines as negative value",
-		input: 'a,b,c,d\n1,2,3,4\n4,5,6,7',
-		config: { header: false, skipFirstNLines: -2 },
-		expected: {
-			data: [['a','b','c','d'],['1','2','3','4'],['4','5','6','7']],
-			errors: []
-		}
-	},
-	{
-		description: "Skip first 2 lines , with custom newline character",
-		input: 'skip-this\rskip-this\r1,2,3,4',
-		config: { header: false, skipFirstNLines: 2, newline: '\r' },
-		expected: {
-			data: [['1','2','3','4']],
-			errors: []
-		}
-	},
-
+	}
 ];
 
 describe('Parse Tests', function() {

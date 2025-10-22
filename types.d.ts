@@ -162,11 +162,6 @@ export interface ParseConfig<T = any> {
    */
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
   beforeFirstChunk?(chunk: string): string | void;
-  /**
-   * To skip first N number of lines when converting a CSV file to JSON.
-   * @default 0
-   */
-  skipFirstNLines?: number | undefined;
 }
 
 // Base interface for all async parsing

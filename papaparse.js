@@ -205,16 +205,6 @@ License: MIT
 		this.parseChunk = function(chunk, isFakeChunk)
 		{
 			// First chunk pre-processing
-			const skipFirstNLines = parseInt(this._config.skipFirstNLines) || 0;
-			if (this.isFirstChunk && skipFirstNLines > 0) {
-				let _newline = this._config.newline;
-				if (!_newline) {
-					const quoteChar = this._config.quoteChar || '"';
-					_newline = this._handle.guessLineEndings(chunk, quoteChar);
-				}
-				const splitChunk = chunk.split(_newline);
-				chunk = [...splitChunk.slice(skipFirstNLines)].join(_newline);
-			}
 			if (this.isFirstChunk && isFunction(this._config.beforeFirstChunk))
 			{
 				var modifiedChunk = this._config.beforeFirstChunk(chunk);
