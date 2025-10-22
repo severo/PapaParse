@@ -123,21 +123,6 @@ export interface ParseConfig<T = any> {
    * @default false
    */
   header?: boolean | undefined;
-  /**
-   * If `true`, numeric and boolean data will be converted to their type instead of remaining strings.
-   * Numeric data must conform to the definition of a decimal literal.
-   * Numerical values greater than 2^53 or less than -2^53 will not be converted to numbers to preserve precision.
-   * European-formatted numbers must have commas and dots swapped.
-   * If also accepts an object or a function.
-   * If object it's values should be a boolean to indicate if dynamic typing should be applied for each column number (or header name if using headers).
-   * If it's a function, it should return a boolean value for each field number (or name if using headers) which will be passed as first argument.
-   * @default false
-   */
-  dynamicTyping?:
-    | boolean
-    | { [headerName: string]: boolean; [columnNumber: number]: boolean }
-    | ((field: string | number) => boolean)
-    | undefined;
   /** If > 0, only that many rows will be parsed. */
   preview?: number | undefined;
   /**
