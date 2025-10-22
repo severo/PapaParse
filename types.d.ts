@@ -154,14 +154,6 @@ export interface ParseConfig<T = any> {
    * When streaming, parse results are not available in this callback.
    */
   complete?(results: ParseResult<T>): void;
-  /**
-   * A function to execute before parsing the first chunk.
-   * Can be used with chunk or step streaming modes.
-   * The function receives as an argument the chunk about to be parsed, and it may return a modified chunk to parse.
-   * This is useful for stripping header lines (as long as the header fits in a single chunk).
-   */
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  beforeFirstChunk?(chunk: string): string | void;
 }
 
 // Base interface for all async parsing

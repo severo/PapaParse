@@ -243,7 +243,6 @@
 	skipEmptyLines: false,
 	chunk: undefined,
 	chunkSize: undefined,
-	beforeFirstChunk: undefined,
 	withCredentials: undefined,
 	delimitersToGuess: [',', '\t', '|', ';', <a href="#readonly">Papa.RECORD_SEP</a>, <a href="#readonly">Papa.UNIT_SEP</a>],
 }</code></pre>
@@ -410,14 +409,6 @@
 								</td>
 								<td>
 									Overrides <code>Papa.RemoteChunkSize</code>. See <a href="#configurable">configurable</a> section to know the usage of both parameters.
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<code>beforeFirstChunk</code>
-								</td>
-								<td>
-									A function to execute before parsing the first chunk. Can be used with chunk or step streaming modes. The function receives as an argument the chunk about to be parsed, and it may return a modified chunk to parse. This is useful for stripping header lines (as long as the header fits in a single chunk).
 								</td>
 							</tr>
 							<tr>

@@ -194,7 +194,6 @@ License: MIT
 		this._rowCount = 0;
 		this._start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0; // SL: change to upstream PapaParse
 		this._nextChunk = null;
-		this.isFirstChunk = true;
 		this._completeResults = {
 			data: [],
 			errors: [],
@@ -204,14 +203,6 @@ License: MIT
 
 		this.parseChunk = function(chunk, isFakeChunk)
 		{
-			// First chunk pre-processing
-			if (this.isFirstChunk && isFunction(this._config.beforeFirstChunk))
-			{
-				var modifiedChunk = this._config.beforeFirstChunk(chunk);
-				if (modifiedChunk !== undefined)
-					chunk = modifiedChunk;
-			}
-			this.isFirstChunk = false;
 			this._halted = false;
 
 			// Rejoin the line we likely just split in two by chunking the file
