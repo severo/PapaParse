@@ -164,13 +164,6 @@ export interface ParseConfig<T = any> {
    */
   fastMode?: boolean | undefined;
   /**
-   * A function to apply on each value.
-   * The function receives the value as its first argument and the column number or header name when enabled as its second argument.
-   * The return value of the function will replace the value it received.
-   * The transform function is applied before `dynamicTyping`.
-   */
-  transform?(value: string, field: string | number): any;
-  /**
    * An array of delimiters to guess from if the delimiter option is not set.
    * @default [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
    */
