@@ -747,7 +747,6 @@ License: MIT
 		var comments = config.comments;
 		var step = config.step;
 		var preview = config.preview;
-		var fastMode = config.fastMode;
 		var quoteChar;
 		var renamedHeaders = null;
 		var headerParsed = false;
@@ -804,39 +803,6 @@ License: MIT
 
 			if (!input)
 				return returnable();
-
-			if (fastMode || (fastMode !== false && input.indexOf(quoteChar) === -1))
-			{
-				var rows = input.split(newline);
-				for (var i = 0; i < rows.length; i++)
-				{
-					row = rows[i];
-					cursor += row.length;
-
-					if (i !== rows.length - 1)
-						cursor += newline.length;
-					else if (ignoreLastRow)
-						return returnable();
-					if (comments && row.substring(0, commentsLen) === comments)
-						continue;
-					if (stepIsFunction)
-					{
-						data = [];
-						pushRow(row.split(delim));
-						doStep();
-						if (aborted)
-							return returnable();
-					}
-					else
-						pushRow(row.split(delim));
-					if (preview && i >= preview)
-					{
-						data = data.slice(0, preview);
-						return returnable(true);
-					}
-				}
-				return returnable();
-			}
 
 			var nextDelim = input.indexOf(delim, cursor);
 			var nextNewline = input.indexOf(newline, cursor);

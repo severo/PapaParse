@@ -127,19 +127,6 @@
             first so we can talk about it.
           </p>
 
-          <h6 id="fast-mode">What's the deal with fast mode?</h6>
-          <p>
-            Fast mode makes
-            <a href="http://jsperf.com/javascript-csv-parsers/3"
-              >Papa Parse screaming fast</a
-            >, but you wouldn't want to use it if there are quoted fields in
-            your input. Fast mode is fast because it makes one major assumption:
-            no quoted fields. If you don't specify fastMode either way, fast
-            mode will be turned on automatically if there are no quote
-            characters in the input. With fast mode on, 1 GB files can be parsed
-            in about 20 seconds.
-          </p>
-
           <h6 id="encoding">Why do non-ASCII characters look weird?</h6>
           <p>
             It's probably an encoding issue. The FileReader API allows you to

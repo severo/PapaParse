@@ -56,7 +56,6 @@ describe('PapaParse', function() {
 	it('reports the correct row number on FieldMismatch errors', function(done) {
 		Papa.parse(verylongSampleRawCsv, {
 			header: true,
-			fastMode: true,
 			complete: function(parsedCsv) {
 				assert.deepEqual(parsedCsv.errors, [
 					{

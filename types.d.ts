@@ -138,13 +138,6 @@ export interface ParseConfig<T = any> {
    */
   skipEmptyLines?: boolean | "greedy" | undefined;
   /**
-   * Fast mode speeds up parsing significantly for large inputs.
-   * However, it only works when the input has no quoted fields.
-   * Fast mode will automatically be enabled if no " characters appear in the input.
-   * You can force fast mode either way by setting it to true or false.
-   */
-  fastMode?: boolean | undefined;
-  /**
    * An array of delimiters to guess from if the delimiter option is not set.
    * @default [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP]
    */

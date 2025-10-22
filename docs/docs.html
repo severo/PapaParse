@@ -243,7 +243,6 @@
 	skipEmptyLines: false,
 	chunk: undefined,
 	chunkSize: undefined,
-	fastMode: undefined,
 	beforeFirstChunk: undefined,
 	withCredentials: undefined,
 	delimitersToGuess: [',', '\t', '|', ';', <a href="#readonly">Papa.RECORD_SEP</a>, <a href="#readonly">Papa.UNIT_SEP</a>],
@@ -412,14 +411,6 @@
 								</td>
 								<td>
 									Overrides <code>Papa.RemoteChunkSize</code>. See <a href="#configurable">configurable</a> section to know the usage of both parameters.
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<code>fastMode</code>
-								</td>
-								<td>
-									Fast mode speeds up parsing significantly for large inputs. However, it only works when the input has no quoted fields. Fast mode will automatically be enabled if no <code>"</code> characters appear in the input. You can force fast mode either way by setting it to <code>true</code> or <code>false</code>.
 								</td>
 							</tr>
 							<tr>

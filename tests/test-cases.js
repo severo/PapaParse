@@ -547,42 +547,6 @@ var CORE_PARSER_TESTS = [
 		}
 	},
 	{
-		description: "Fast mode, basic",
-		input: 'a,b,c\nd,e,f',
-		config: { fastMode: true },
-		expected: {
-			data: [['a', 'b', 'c'], ['d', 'e', 'f']],
-			errors: []
-		}
-	},
-	{
-		description: "Fast mode with comments",
-		input: '// Commented line\na,b,c',
-		config: { fastMode: true, comments: "//" },
-		expected: {
-			data: [['a', 'b', 'c']],
-			errors: []
-		}
-	},
-	{
-		description: "Fast mode with preview",
-		input: 'a,b,c\nd,e,f\nh,j,i\n',
-		config: { fastMode: true, preview: 2 },
-		expected: {
-			data: [['a', 'b', 'c'], ['d', 'e', 'f']],
-			errors: []
-		}
-	},
-	{
-		description: "Fast mode with blank line at end",
-		input: 'a,b,c\n',
-		config: { fastMode: true },
-		expected: {
-			data: [['a', 'b', 'c'], ['']],
-			errors: []
-		}
-	},
-	{
 		description: "Simple duplicated header names",
 		input: 'A,A,A,A\n1,2,3,4',
 		config: { header: true },
