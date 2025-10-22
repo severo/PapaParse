@@ -596,19 +596,6 @@ var CORE_PARSER_TESTS = [
 		}
 	},
 	{
-		description: "Duplicated header names with headerTransform",
-		input: 'A,A,A,A\n1,2,3,4',
-		config: { header: true, transformHeader: function(header) { return header.toLowerCase(); } },
-		expected: {
-			data: [['a', 'a_1', 'a_2', 'a_3'], ['1', '2', '3', '4']],
-			errors: [],
-			meta: {
-				renamedHeaders: {a_1: 'a', a_2: 'a', a_3: 'a'},
-				cursor: 15
-			}
-		}
-	},
-	{
 		description: "Duplicated header names existing column",
 		input: 'c,c,c,c_1\n1,2,3,4',
 		config: { header: true },
@@ -805,24 +792,6 @@ var PARSE_TESTS = [
 		config: { header: true },
 		expected: {
 			data: [{"A": "a", "B": "b", "C": ""}],
-			errors: []
-		}
-	},
-	{
-		description: "Header rows are transformed when transformHeader function is provided",
-		input: 'A,B,C\r\na,b,c',
-		config: { header: true, transformHeader: function(header) { return header.toLowerCase(); } },
-		expected: {
-			data: [{"a": "a", "b": "b", "c": "c"}],
-			errors: []
-		}
-	},
-	{
-		description: "transformHeader accepts and optional index attribute",
-		input: 'A,B,C\r\na,b,c',
-		config: { header: true, transformHeader: function(header, i) { return i % 2 ? header.toLowerCase() : header; } },
-		expected: {
-			data: [{"A": "a", "b": "b", "C": "c"}],
 			errors: []
 		}
 	},

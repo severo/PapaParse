@@ -174,8 +174,6 @@ License: MIT
 		}
 		_config.dynamicTyping = dynamicTyping;
 
-		_config.transform = isFunction(_config.transform) ? _config.transform : false;
-
 		var streamer = null;
 		if (typeof _input === 'string')
 		{
@@ -599,7 +597,7 @@ License: MIT
 			if (needsHeaderRow())
 				fillHeaderFields();
 
-			return applyHeaderAndDynamicTypingAndTransformation();
+			return applyHeaderAndDynamicTyping();
 		}
 
 		function needsHeaderRow()
@@ -615,8 +613,6 @@ License: MIT
 			function addHeader(header, i)
 			{
 				header = stripBom(header);
-				if (isFunction(_config.transformHeader))
-					header = _config.transformHeader(header, i);
 
 				_fields.push(header);
 			}
@@ -659,9 +655,9 @@ License: MIT
 			return value;
 		}
 
-		function applyHeaderAndDynamicTypingAndTransformation()
+		function applyHeaderAndDynamicTyping()
 		{
-			if (!_results || (!_config.header && !_config.dynamicTyping && !_config.transform))
+			if (!_results || (!_config.header && !_config.dynamicTyping))
 				return _results;
 
 			function processRow(rowSource, i)
@@ -676,9 +672,6 @@ License: MIT
 
 					if (_config.header)
 						field = j >= _fields.length ? '__parsed_extra' : _fields[j];
-
-					if (_config.transform)
-						value = _config.transform(value,field);
 
 					value = parseDynamic(field, value);
 
@@ -1131,9 +1124,7 @@ License: MIT
 					let duplicateHeaders = false;
 
 					for (let i = 0; i < result.length; i++) {
-						let header = stripBom(result[i]);
-						if (isFunction(config.transformHeader))
-							header = config.transformHeader(header, i);
+						const header = stripBom(result[i]);
 
 						if (!headerCount[header]) {
 							headerCount[header] = 1;

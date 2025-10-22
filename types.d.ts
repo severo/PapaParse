@@ -124,10 +124,6 @@ export interface ParseConfig<T = any> {
    */
   header?: boolean | undefined;
   /**
-   * A function to apply on each header. Requires header to be true. The function receives the header as its first argument and the index as second.
-   */
-  transformHeader?(header: string, index: number): string;
-  /**
    * If `true`, numeric and boolean data will be converted to their type instead of remaining strings.
    * Numeric data must conform to the definition of a decimal literal.
    * Numerical values greater than 2^53 or less than -2^53 will not be converted to numbers to preserve precision.

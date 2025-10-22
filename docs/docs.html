@@ -231,7 +231,6 @@
 	quoteChar: '"',
 	escapeChar: '"',
 	header: false,
-	transformHeader: undefined,
 	dynamicTyping: false,
 	preview: 0,
 	encoding: "",
@@ -302,16 +301,7 @@
 								</td>
 								<td>
 									If true, the first row of parsed data will be interpreted as field names. An array of field names will be returned in <a href="#meta">meta</a>, and each row of data will be an object of values keyed by field name instead of a simple array. Rows with a different number of fields from the header row will produce an error. 
-									Warning: Duplicated field names will be automatically renamed to avoid values in previous fields having the same name to be overwritten. Renamed fields with original (or transformed by <code>transformHeader</code>) are stored in <code>ParseResult.meta.renamedHeaders</code>
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<code>transformHeader</code>
-								</td>
-								<td>
-									A function to apply on each header. Requires <code>header</code> to be <code>true</code>. The function receives the header as its first argument and the index as second.<br>
-									Only available starting with version 5.0.
+									Warning: Duplicated field names will be automatically renamed to avoid values in previous fields having the same name to be overwritten. Renamed fields with original are stored in <code>ParseResult.meta.renamedHeaders</code>
 								</td>
 							</tr>
 							<tr>
