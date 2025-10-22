@@ -11,14 +11,6 @@ export as namespace Papa;
 export {}; // Don't export all declarations!
 
 /**
- * Parse local files
- * @param file a File object obtained from the DOM.
- * @param config a config object which contains a callback.
- * @returns Doesn't return anything. Results are provided asynchronously to a callback function.
- */
-// eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-export function parse<T, TFile extends LocalFile = LocalFile>(file: TFile, config: ParseLocalConfig<T, TFile>): void;
-/**
  * Parse remote files
  * @param url the path or URL to the file to download.
  * @param config a config object.
@@ -78,13 +70,7 @@ export const UNIT_SEP: "\x1F";
  */
 
 /**
- * The size in bytes of each file chunk. Used when streaming files obtained from the DOM that exist on the local computer. Default 10 MB.
- * @default 10485760
- */
-export let LocalChunkSize: number;
-
-/**
- * Same as `LocalChunkSize`, but for downloading files from remote locations. Default 5 MB.
+ * The size in bytes of each file chunk. Used when downloading files from remote locations. Default 5 MB.
  * @default 5242880
  */
 export let RemoteChunkSize: number;
@@ -96,7 +82,7 @@ export let RemoteChunkSize: number;
 export let DefaultDelimiter: string;
 
 /** File object */
-export type LocalFile = File | NodeJS.ReadableStream;
+export type LocalFile = NodeJS.ReadableStream;
 
 /**
  * On Papa there are actually more classes exposed
@@ -213,7 +199,7 @@ export interface ParseConfig<T = any, TInput = undefined> {
     step?(results: ParseStepResult<T>, parser: Parser): void;
     /**
      * The callback to execute when parsing is complete.
-     * It receives the parse results. If parsing a local file, the File is passed in, too.
+     * It receives the parse results.
      * When streaming, parse results are not available in this callback.
      */
     complete?(results: ParseResult<T>, file: TInput): void;
@@ -235,7 +221,7 @@ export interface ParseConfig<T = any, TInput = undefined> {
 // Base interface for all async parsing
 interface ParseAsyncConfigBase<T = any, TInput = undefined> extends ParseConfig<T, TInput> {
     /**
-     * Overrides `Papa.LocalChunkSize` and `Papa.RemoteChunkSize`.
+     * Overrides `Papa.RemoteChunkSize`.
      */
     chunkSize?: number | undefined;
     /**

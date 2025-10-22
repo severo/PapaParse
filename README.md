@@ -60,7 +60,7 @@ The website is hosted on [Github Pages](https://pages.github.com/). Its content 
 Papa Parse for Node
 --------------------
 
-Papa Parse can parse a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) instead of a [File](https://www.w3.org/TR/FileAPI/) when used in Node.js environments (in addition to plain strings). In this mode, `encoding` must, if specified, be a Node-supported character encoding. The `Papa.LocalChunkSize`, `Papa.RemoteChunkSize` , `download` and `withCredentials` config options are unavailable.
+Papa Parse can parse a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) instead of a [File](https://www.w3.org/TR/FileAPI/) when used in Node.js environments (in addition to plain strings). In this mode, `encoding` must, if specified, be a Node-supported character encoding. The `Papa.RemoteChunkSize` , `download` and `withCredentials` config options are unavailable.
 
 Get Started
 -----------

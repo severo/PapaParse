@@ -10,13 +10,6 @@ var assert = chai.assert;
 var BASE_PATH = (typeof document === 'undefined') ? './' : document.getElementById('test-cases').src.replace(/test-cases\.js$/, '');
 var RECORD_SEP = String.fromCharCode(30);
 var UNIT_SEP = String.fromCharCode(31);
-var FILES_ENABLED = false;
-try {
-	new File([""], ""); // eslint-disable-line no-new
-	// Required since Node20 as it ads a FileGlobal but not a FileReaderSync
-	new FileReaderSync(); // eslint-disable-line no-new
-	FILES_ENABLED = true;
-} catch (e) {} // safari, ie
 
 var XHR_ENABLED = false;
 try {
@@ -1710,29 +1703,6 @@ var PARSE_ASYNC_TESTS = [
 			data: [['A','B','C'],['X','Y','Z']],
 			errors: []
 		}
-	},
-	{
-		description: "Simple file",
-		disabled: !FILES_ENABLED,
-		input: FILES_ENABLED ? new File(["A,B,C\nX,Y,Z"], "sample.csv") : false,
-		config: {
-		},
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
-	},
-	{
-		description: "File with a few regular and lots of empty lines",
-		disabled: !FILES_ENABLED,
-		input: FILES_ENABLED ? new File(["A,B,C\nX,Y,Z\n" + new Array(500000).fill(",,").join("\n")], "sample.csv") : false,
-		config: {
-			skipEmptyLines: "greedy"
-		},
-		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
-			errors: []
-		}
 	}
 ];
 
@@ -2094,9 +2064,8 @@ var CUSTOM_TESTS = [
 	{
 		description: "Complete is called with all results if neither step nor chunk is defined",
 		expected: [['A', 'b', 'c'], ['d', 'E', 'f'], ['G', 'h', 'i']],
-		disabled: !FILES_ENABLED,
 		run: function(callback) {
-			Papa.parse(new File(['A,b,c\nd,E,f\nG,h,i'], 'sample.csv'), {
+			Papa.parse('A,b,c\nd,E,f\nG,h,i', {
 				chunkSize: 3,
 				complete: function(response) {
 					callback(response.data);
@@ -2301,46 +2270,11 @@ var CUSTOM_TESTS = [
 		}
 	},
 	{
-		description: "Step exposes indexes for files",
-		expected: [6, 12, 17],
-		disabled: !FILES_ENABLED,
-		run: function(callback) {
-			var updates = [];
-			Papa.parse(new File(['A,b,c\nd,E,f\nG,h,i'], 'sample.csv'), {
-				download: true,
-				step: function(response) {
-					updates.push(response.meta.cursor);
-				},
-				complete: function() {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
-		description: "Step exposes indexes for chunked files",
-		expected: [6, 12, 17],
-		disabled: !FILES_ENABLED,
-		run: function(callback) {
-			var updates = [];
-			Papa.parse(new File(['A,b,c\nd,E,f\nG,h,i'], 'sample.csv'), {
-				chunkSize: 3,
-				step: function(response) {
-					updates.push(response.meta.cursor);
-				},
-				complete: function() {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
 		description: "Quoted line breaks near chunk boundaries are handled",
 		expected: [['A', 'B', 'C'], ['X', 'Y\n1\n2\n3', 'Z']],
-		disabled: !FILES_ENABLED,
 		run: function(callback) {
 			var updates = [];
-			Papa.parse(new File(['A,B,C\nX,"Y\n1\n2\n3",Z'], 'sample.csv'), {
+			Papa.parse('A,B,C\nX,"Y\n1\n2\n3",Z', {
 				chunkSize: 3,
 				step: function(response) {
 					updates.push(response.data);

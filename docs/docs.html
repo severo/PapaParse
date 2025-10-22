@@ -631,7 +631,7 @@ var csv = Papa.unparse({
 									<code>chunkSize</code>
 								</td>
 								<td>
-									Overrides <code>Papa.LocalChunkSize</code> and <code>Papa.RemoteChunkSize</code>. See <a href="#configurable">configurable</a> section to know the usage of both parameters.
+									Overrides <code>Papa.RemoteChunkSize</code>. See <a href="#configurable">configurable</a> section to know the usage of both parameters.
 								</td>
 							</tr>
 							<tr>
@@ -902,15 +902,9 @@ var csv = Papa.unparse({
 								<th>Explanation</th>
 							</tr>
 							<tr>
-								<td><code>Papa.LocalChunkSize</code></td>
-								<td>
-									The size in bytes of each file chunk. Used when streaming files obtained from the DOM that exist on the local computer. Default 10 MB.
-								</td>
-							</tr>
-							<tr>
 								<td><code>Papa.RemoteChunkSize</code></td>
 								<td>
-									Same as LocalChunkSize, but for downloading files from remote locations. Default 5 MB.
+									The size in bytes of each file chunk. Used when downloading files from remote locations. Default 5 MB.
 								</td>
 							</tr>
 							<tr>
