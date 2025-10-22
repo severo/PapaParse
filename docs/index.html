@@ -40,17 +40,7 @@
 
 						<div id="title-code">
 							<pre><code class="language-javascript">// Parse CSV string
-var data = Papa.parse(csv);
-
-// Convert back to CSV
-var csv = Papa.unparse(data);
-
-// Parse local CSV file
-Papa.parse(file, {
-	complete: function(results) {
-		console.log("Finished:", results.data);
-	}
-});</code></pre>
+var data = Papa.parse(csv);</code></pre>
 						</div>
 					</div>
 				</div>
@@ -126,13 +116,12 @@ Papa.parse(file, {
 
 					<div class="grid-container">
 						<div class="grid-33">
-							<li>CSV&#8594;JSON and <a href="#unparse">JSON&#8594;CSV</a></li>
 							<li>Auto-detect <a href="#delimiter">delimiter</a></li>
 							<li><a href="#local-files">Open local files</a></li>
 							<li><a href="#remote-files">Download remote files</a></li>
 						</div>
 						<div class="grid-33">
-							<li><a href="#stream">Stream</a> local and remote files</li>
+							<li><a href="#stream">Stream</a> remote files</li>
 							<li><a href="#header">Header row</a> support</li>
 							<li><a href="#type-conversion">Type conversion</a></li>
 						</div>
@@ -423,23 +412,6 @@ var results = Papa.parse(csv, {
 					</div>
 				</section>
 
-
-
-
-				<section id="unparse">
-					<div class="grid-container narrow-grid">
-						<div class="grid-100">
-							<h4>JSON to CSV</h4>
-							<h5>"Last thing: what about converting JSON to CSV?"</h5>
-
-							<p>Call <code>unparse()</code> instead of <code>parse()</code>, passing in your array of arrays or array of objects. Papa will figure it out.</p>
-
-							<pre><code class="language-javascript">// Output is a properly-formatted CSV string.
-// See <a href="/docs#json-to-csv">the docs</a> for more configurability.
-var csv = Papa.unparse(yourData);</code></pre>
-						</div>
-					</div>
-				</section>
 
 
 

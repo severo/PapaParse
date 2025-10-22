@@ -38,9 +38,7 @@ Usage
 ```js
 import Papa from 'papaparse';
 
-Papa.parse(file, config);
-    
-const csv = Papa.unparse(data[, config]);
+Papa.parse(url, config);
 ```
 
 Homepage & Demo

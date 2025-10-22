@@ -40,16 +40,6 @@ export function parse<T>(
 ): void;
 
 /**
- * Unparses javascript data objects and returns a csv string
- * @param data can be one of: An array of arrays; An array of objects; An object explicitly defining `fields` and `data`
- * @param config an optional config object
- */
-export function unparse<T>(
-  data: T[] | UnparseObject<T>,
-  config?: UnparseConfig
-): string;
-
-/**
  * Read-Only Properties
  */
 
@@ -213,8 +203,7 @@ export interface ParseConfig<T = any> {
 }
 
 // Base interface for all async parsing
-interface ParseAsyncConfigBase<T = any>
-  extends ParseConfig<T> {
+interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
   /**
    * Overrides `Papa.RemoteChunkSize`.
    */
@@ -233,13 +222,11 @@ interface ParseAsyncConfigBase<T = any>
   error?(error: Error): void;
 }
 
-interface ParseAsyncConfigStep<T = any>
-  extends ParseAsyncConfigBase<T> {
+interface ParseAsyncConfigStep<T = any> extends ParseAsyncConfigBase<T> {
   /** @inheritdoc */
   step(results: ParseStepResult<T>, parser: Parser): void;
 }
-interface ParseAsyncConfigNoStep<T = any>
-  extends ParseAsyncConfigBase<T> {
+interface ParseAsyncConfigNoStep<T = any> extends ParseAsyncConfigBase<T> {
   /** @inheritdoc */
   complete(results: ParseResult<T>): void;
 }
@@ -299,76 +286,6 @@ interface ParseRemoteConfigNoStep<T = any> extends ParseRemoteConfigBase<T> {
 export type ParseRemoteConfig<T = any> =
   | ParseRemoteConfigStep<T>
   | ParseRemoteConfigNoStep<T>;
-
-export interface UnparseConfig {
-  /**
-   * If `true`, forces all fields to be enclosed in quotes.
-   * If an array of `true`/`false` values, specifies which fields should be force-quoted (first boolean is for the first column, second boolean for the second column, ...).
-   * A function that returns a boolean values can be used to determine the quotes value of a cell.
-   * This function accepts the cell value and column index as parameters.
-   * Note that this option is ignored for `undefined`, `null` and `date-object` values.
-   * The option `escapeFormulae` also takes precedence over this.
-   *
-   * @default false
-   */
-  quotes?:
-    | boolean
-    | boolean[]
-    | ((value: any, columnIndex: number) => boolean)
-    | undefined;
-  /**
-   * The character used to quote fields.
-   * @default '"'
-   */
-  quoteChar?: string | undefined;
-  /**
-   * The character used to escape `quoteChar` inside field values.
-   * @default '"'
-   */
-  escapeChar?: string | undefined;
-  /**
-   * The delimiting character. Multi-character delimiters are supported. It must not be found in `Papa.BAD_DELIMITERS`.
-   * @default ','
-   */
-  delimiter?: string | undefined;
-  /**
-   * If `false`, will omit the header row.
-   * If `data` is an array of arrays this option is ignored.
-   * If `data` is an array of objects the keys of the first object are the header row.
-   * If `data` is an object with the keys `fields` and `data` the `fields` are the header row.
-   * @default true
-   */
-  header?: boolean | undefined;
-  /**
-   * The character used to determine newline sequence.
-   * @default '\r\n'
-   */
-  newline?: string | undefined;
-  /**
-   * If `true`, lines that are completely empty (those which evaluate to an empty string) will be skipped.
-   * If set to `'greedy'`, lines that don't have any content (those which have only whitespace after parsing) will also be skipped.
-   * @default false
-   */
-  skipEmptyLines?: boolean | "greedy" | undefined;
-  /**
-   * If `data` is an array of objects this option can be used to manually specify the keys (columns) you expect in the objects.
-   * If not set the keys of the first objects are used as column.
-   * @default undefined
-   */
-  columns?: string[] | undefined;
-  /**
-   * If `true`, field values that begin with `=`, `+`, `-`, or `@`,
-   * will be prepended with a ` to defend against [injection attacks](https://www.contextis.com/en/blog/comma-separated-vulnerabilities),
-   * because Excel and LibreOffice will automatically parse such cells as formulae.
-   * @default false
-   */
-  escapeFormulae?: boolean | RegExp | undefined;
-}
-
-export interface UnparseObject<T> {
-  fields: string[];
-  data: T[];
-}
 
 /** Error structure */
 export interface ParseError {

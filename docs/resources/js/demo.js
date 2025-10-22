@@ -2,7 +2,6 @@ var inputType = "string";
 var stepped = 0, rowCount = 0, errorCount = 0, firstError;
 var start, end;
 var firstRun = true;
-var maxUnparseLength = 10000;
 
 $(function()
 {
@@ -17,16 +16,6 @@ $(function()
 		inputType = "string";
 	});
 
-	$('#tab-local').click(function()
-	{
-		$('.tab').removeClass('active');
-		$(this).addClass('active');
-		$('.input-area').hide();
-		$('#input-local').show();
-		$('#submit').text("Parse");
-		inputType = "local";
-	});
-
 	$('#tab-remote').click(function()
 	{
 		$('.tab').removeClass('active');
@@ -35,16 +24,6 @@ $(function()
 		$('#input-remote').show();
 		$('#submit').text("Parse");
 		inputType = "remote";
-	});
-
-	$('#tab-unparse').click(function()
-	{
-		$('.tab').removeClass('active');
-		$(this).addClass('active');
-		$('.input-area').hide();
-		$('#input-unparse').show();
-		$('#submit').text("Unparse");
-		inputType = "json";
 	});
 
 
@@ -92,60 +71,7 @@ $(function()
 
 
 
-		if (inputType == "local")
-		{
-			if (!$('#files')[0].files.length)
-			{
-				alert("Please choose at least one file to parse.");
-				return enableButton();
-			}
-			
-			$('#files').parse({
-				config: config,
-				before: function(file, inputElem)
-				{
-					start = now();
-					console.log("Parsing file...", file);
-				},
-				error: function(err, file)
-				{
-					console.log("ERROR:", err, file);
-					firstError = firstError || err;
-					errorCount++;
-				},
-				complete: function()
-				{
-					end = now();
-					printStats("Done with all files");
-				}
-			});
-		}
-		else if (inputType == "json")
-		{
-			if (!input)
-			{
-				alert("Please enter a valid JSON string to convert to CSV.");
-				return enableButton();
-			}
-
-			start = now();
-			var csv = Papa.unparse(input, config);
-			end = now();
-
-			console.log("Unparse complete");
-			console.log("Time:", (end-start || "(Unknown; your browser does not support the Performance API)"), "ms");
-			
-			if (csv.length > maxUnparseLength)
-			{
-				csv = csv.substr(0, maxUnparseLength);
-				console.log("(Results truncated for brevity)");
-			}
-
-			console.log(csv);
-
-			setTimeout(enableButton, 100);	// hackity-hack
-		}
-		else if (inputType == "remote" && !input)
+		if (inputType == "remote" && !input)
 		{
 			alert("Please enter the URL of a file to download and parse.");
 			return enableButton();
