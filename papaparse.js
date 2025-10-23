@@ -202,8 +202,11 @@ License: MIT
 			xhr.onload = bindFunction(this._chunkLoaded, this);
 			xhr.onerror = bindFunction(this._chunkError, this);
 
-			// Note(SL): Synchronous XHR (async=false) is deprecated.
-			// Note(SL): Refactor the library with promises/async-await/fetch API in the future.
+			/**
+			 * Note(SL): Synchronous XHR (async=false) is deprecated.
+			 * Refactor the library with promises/async-await/fetch API in the future.
+			 * In upstream PapaParse, async XHR is used in workers only (and we removed workers).
+			 */
 			xhr.open(this._config.downloadRequestBody ? 'POST' : 'GET', this._input, false);
 			// Headers can only be set when once the request state is OPENED
 			if (this._config.downloadRequestHeaders)
