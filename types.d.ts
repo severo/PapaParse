@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /* copied from
  * https://github.com/DefinitelyTyped/DefinitelyTyped/blob/936968bd3492ce9296d465869dff30bd75999143/types/papaparse/index.d.ts
- * and adapted to add option firstChunkOffset
+ * and adapted to add option offset
  */
 
 export as namespace Papa;
@@ -217,7 +217,7 @@ interface ParseRemoteConfigBase<T = any> extends ParseAsyncConfigBase<T> {
    * If defined and greater than 0, the first chunk will start at this byte offset in the remote file
    * instead of the beginning of the file.
    */
-  firstChunkOffset?: number | undefined;
+  offset?: number | undefined;
 }
 
 interface ParseRemoteConfigStep<T = any> extends ParseRemoteConfigBase<T> {

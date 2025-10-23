@@ -180,7 +180,7 @@ License: MIT
 		ChunkStreamer.call(this, config);
 
 		var xhr;
-		let start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0;
+		let start = config.offset ? parseInt(config.offset) : 0;
 
 		this._nextChunk = function()
 		{
