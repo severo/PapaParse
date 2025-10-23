@@ -180,7 +180,7 @@ License: MIT
 		ChunkStreamer.call(this, config);
 
 		var xhr;
-		let _start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0;
+		let start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0;
 
 		this._nextChunk = function()
 		{
@@ -225,8 +225,8 @@ License: MIT
 
 			if (this._config.chunkSize)
 			{
-				var end = _start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
-				xhr.setRequestHeader('Range', 'bytes=' + _start + '-' + end);
+				var end = start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
+				xhr.setRequestHeader('Range', 'bytes=' + start + '-' + end);
 			}
 
 			try {
@@ -248,11 +248,12 @@ License: MIT
 				return;
 			}
 
+			const firstByte = start;
 			if (this._config.chunkSize) {
-				_start += this._config.chunkSize;
-				this._finished = _start >= getFileSize(xhr);
+				start += this._config.chunkSize;
+				this._finished = start >= getFileSize(xhr);
 			} else {
-				// if no chunkSize, no need to increment _start, we are done after this
+				// if no chunkSize, no need to increment start, we are done after this
 				this._finished = true;
 			}
 			this.parseChunk(xhr.responseText);
