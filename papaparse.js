@@ -107,7 +107,7 @@ License: MIT
 		};
 		replaceConfig.call(this, config);
 
-		this.parseChunk = function(chunk, isFakeChunk)
+		this.parseChunk = function(chunk)
 		{
 			this._halted = false;
 
@@ -134,7 +134,7 @@ License: MIT
 
 			var finishedIncludingPreview = this._finished || (this._config.preview && this._rowCount >= this._config.preview);
 
-			if (isFunction(this._config.chunk) && !isFakeChunk)
+			if (isFunction(this._config.chunk))
 			{
 				this._config.chunk(results, this._handle);
 				if (this._handle.aborted()) {
