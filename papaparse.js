@@ -134,18 +134,7 @@ License: MIT
 
 			var finishedIncludingPreview = this._finished || (this._config.preview && this._rowCount >= this._config.preview);
 
-			if (isFunction(this._config.chunk))
-			{
-				this._config.chunk(results, this._handle);
-				if (this._handle.aborted()) {
-					this._halted = true;
-					return;
-				}
-				results = undefined;
-				this._completeResults = undefined;
-			}
-
-			if (!this._config.step && !this._config.chunk) {
+			if (!this._config.step) {
 				this._completeResults.data = this._completeResults.data.concat(results.data);
 				this._completeResults.errors = this._completeResults.errors.concat(results.errors);
 				this._completeResults.meta = results.meta;
@@ -173,7 +162,7 @@ License: MIT
 			// Deep-copy the config so we can edit it
 			var configCopy = copy(config);
 			configCopy.chunkSize = parseInt(configCopy.chunkSize);	// parseInt VERY important so we don't concatenate strings!
-			if (!config.step && !config.chunk)
+			if (!config.step)
 				configCopy.chunkSize = null;  // disable Range header if not streaming; bad values break IIS - see issue #196
 			this._handle = new ParserHandle(configCopy);
 			this._handle.streamer = this;

@@ -163,13 +163,6 @@ interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
    */
   chunkSize?: number | undefined;
   /**
-   * A callback function, identical to `step`, which activates streaming.
-   * However, this function is executed after every chunk of the file is loaded and parsed rather than every row.
-   * Works only with remote files.
-   * Do not use both `chunk` and `step` callbacks together.
-   */
-  chunk?(results: ParseResult<T>, parser: Parser): void;
-  /**
    * A callback to execute if FileReader encounters an error.
    * The function is passed one argument: the error.
    */

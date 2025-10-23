@@ -98,19 +98,6 @@ describe('PapaParse', function() {
 
 	// Note(SL): it should handle errors for a string input as well.
 
-	// it('handles errors in chunk', function(done) {
-	// 	var expectedError = new Error('test');
-	// 	Papa.parse(longSampleRawCsv, {
-	// 		chunk: function() {
-	// 			throw expectedError;
-	// 		},
-	// 		error: function(err) {
-	// 			assert.deepEqual(err, expectedError);
-	// 			done();
-	// 		}
-	// 	});
-	// });
-
 	// it('handles errors in step', function(done) {
 	// 	var expectedError = new Error('test');
 	// 	Papa.parse(longSampleRawCsv, {
