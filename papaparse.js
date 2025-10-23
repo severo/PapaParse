@@ -658,7 +658,7 @@ License: MIT
 			newline = '\n';
 
 		// We're gonna need these at the Parser scope
-		var cursor = 0;
+		var cursor = 0; // unit: UTF-8 characters
 		var aborted = false;
 
 		this.parse = function(input, baseIndex, ignoreLastRow)
