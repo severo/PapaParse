@@ -248,9 +248,13 @@ License: MIT
 				return;
 			}
 
-			// Use chunkSize as it may be a difference on reponse length due to characters with more than 1 byte
-			_start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
-			this._finished = !this._config.chunkSize || _start >= getFileSize(xhr);
+			if (this._config.chunkSize) {
+				_start += this._config.chunkSize;
+				this._finished = _start >= getFileSize(xhr);
+			} else {
+				// if no chunkSize, no need to increment _start, we are done after this
+				this._finished = true;
+			}
 			this.parseChunk(xhr.responseText);
 		};
 
