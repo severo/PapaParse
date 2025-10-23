@@ -74,14 +74,16 @@ License: MIT
 		_config = _config || {};
 
 		var streamer = null;
-		if (typeof _input === 'string')
-		{
-			_input = stripBom(_input);
-			if (_config.download)
-				streamer = new NetworkStreamer(_config);
-			else
-				streamer = new StringStreamer(_config);
+
+		if (typeof _input !== 'string') {
+			throw new Error('Input must be a string');
 		}
+
+		_input = stripBom(_input);
+		if (_config.download)
+			streamer = new NetworkStreamer(_config);
+		else
+			streamer = new StringStreamer(_config);
 
 		return streamer.stream(_input);
 	}
@@ -107,7 +109,7 @@ License: MIT
 		};
 		replaceConfig.call(this, config);
 
-		this.parseChunk = function(chunk, isFakeChunk)
+		this.parseChunk = function(chunk)
 		{
 			this._halted = false;
 
@@ -134,25 +136,14 @@ License: MIT
 
 			var finishedIncludingPreview = this._finished || (this._config.preview && this._rowCount >= this._config.preview);
 
-			if (isFunction(this._config.chunk) && !isFakeChunk)
-			{
-				this._config.chunk(results, this._handle);
-				if (this._handle.aborted()) {
-					this._halted = true;
-					return;
-				}
-				results = undefined;
-				this._completeResults = undefined;
-			}
-
-			if (!this._config.step && !this._config.chunk) {
+			if (!this._config.step) {
 				this._completeResults.data = this._completeResults.data.concat(results.data);
 				this._completeResults.errors = this._completeResults.errors.concat(results.errors);
 				this._completeResults.meta = results.meta;
 			}
 
 			if (!this._completed && finishedIncludingPreview && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
-				this._config.complete(this._completeResults, this._input);
+				this._config.complete(this._completeResults);
 				this._completed = true;
 			}
 
@@ -173,7 +164,7 @@ License: MIT
 			// Deep-copy the config so we can edit it
 			var configCopy = copy(config);
 			configCopy.chunkSize = parseInt(configCopy.chunkSize);	// parseInt VERY important so we don't concatenate strings!
-			if (!config.step && !config.chunk)
+			if (!config.step)
 				configCopy.chunkSize = null;  // disable Range header if not streaming; bad values break IIS - see issue #196
 			this._handle = new ParserHandle(configCopy);
 			this._handle.streamer = this;
@@ -257,7 +248,7 @@ License: MIT
 				return;
 			}
 
-			// Use chunckSize as it may be a diference on reponse lentgh due to characters with more than 1 byte
+			// Use chunkSize as it may be a diference on reponse length due to characters with more than 1 byte
 			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
 			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
 			this.parseChunk(xhr.responseText);
@@ -667,7 +658,7 @@ License: MIT
 			newline = '\n';
 
 		// We're gonna need these at the Parser scope
-		var cursor = 0;
+		var cursor = 0; // unit: UTF-8 characters
 		var aborted = false;
 
 		this.parse = function(input, baseIndex, ignoreLastRow)
@@ -895,7 +886,7 @@ License: MIT
 				if (typeof value === 'undefined')
 					value = input.substring(cursor);
 				row.push(value);
-				cursor = inputLen;	// important in case parsing is paused (TODO(SL): not implemented anymore, should we remove?)
+				cursor = inputLen;
 				pushRow(row);
 				if (stepIsFunction)
 					doStep();
@@ -986,12 +977,6 @@ License: MIT
 		this.abort = function()
 		{
 			aborted = true;
-		};
-
-		/** Gets the cursor position */
-		this.getCharIndex = function()
-		{
-			return cursor;
 		};
 	}
 

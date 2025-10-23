@@ -10,13 +10,10 @@ Papa Parse is the fastest in-browser CSV (or delimited text) parser for JavaScri
 
 - Easy to use
 - Parse CSV files directly (over the network)
-- Fast mode
-- Stream large files (even via HTTP)
-- Reverse parsing (converts JSON to CSV)
+- Stream large files via HTTP
 - Auto-detect delimiter
 - Header row support
 - Abort
-- Can convert numbers and booleans to their types
 - One of the only parsers that correctly handles line-breaks and quotations
 
 Papa Parse has **no dependencies**.
@@ -52,11 +49,6 @@ To learn how to use Papa Parse:
 
 The website is hosted on [Github Pages](https://pages.github.com/). Its content is also included in the docs folder of this repository. If you want to contribute on it just clone the master of this repository and open a pull request.
 
-
-Papa Parse for Node
---------------------
-
-Papa Parse can parse a [Readable Stream](https://nodejs.org/api/stream.html#stream_readable_streams) instead of a [File](https://www.w3.org/TR/FileAPI/) when used in Node.js environments (in addition to plain strings). In this mode, `encoding` must, if specified, be a Node-supported character encoding. The `Papa.RemoteChunkSize` , `download` and `withCredentials` config options are unavailable.
 
 Get Started
 -----------

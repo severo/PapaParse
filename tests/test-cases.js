@@ -1470,7 +1470,7 @@ describe('Parse Async Tests', function() {
 
 var CUSTOM_TESTS = [
 	{
-		description: "Complete is called with all results if neither step nor chunk is defined",
+		description: "Complete is called with all results if step is not defined",
 		expected: [['A', 'b', 'c'], ['d', 'E', 'f'], ['G', 'h', 'i']],
 		run: function(callback) {
 			Papa.parse('A,b,c\nd,E,f\nG,h,i', {
@@ -1621,63 +1621,6 @@ var CUSTOM_TESTS = [
 		}
 	},
 	{
-		description: "Chunk is called for each chunk",
-		expected: [3, 3, 2],
-		disabled: !XHR_ENABLED,
-		run: function(callback) {
-			var updates = [];
-			Papa.parse(BASE_PATH + "long-sample.csv", {
-				download: true,
-				chunkSize: 500,
-				chunk: function(response) {
-					updates.push(response.data.length);
-				},
-				complete: function() {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
-		description: "Chunk is called with cursor position",
-		expected: [452, 865, 1209],
-		disabled: !XHR_ENABLED,
-		run: function(callback) {
-			var updates = [];
-			Papa.parse(BASE_PATH + "long-sample.csv", {
-				download: true,
-				chunkSize: 500,
-				chunk: function(response) {
-					updates.push(response.meta.cursor);
-				},
-				complete: function() {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
-		description: "Chunk functions can abort parsing",
-		expected: [
-			[['A', 'b', 'c']]
-		],
-		run: function(callback) {
-			var updates = [];
-			Papa.parse('A,b,c\nd,E,f\nG,h,i', {
-				chunkSize: 1,
-				chunk: function(response, handle) {
-					if (response.data.length) {
-						updates.push(response.data);
-						handle.abort();
-					}
-				},
-				complete: function(response) {
-					callback(updates);
-				}
-			});
-		}
-	},
-	{
 		description: "Quoted line breaks near chunk boundaries are handled",
 		expected: [['A', 'B', 'C'], ['X', 'Y\n1\n2\n3', 'Z']],
 		run: function(callback) {
@@ -1749,8 +1692,8 @@ var CUSTOM_TESTS = [
 			Papa.parse('h0,h1\na,a\nb,b', {
 				header: true,
 				chunkSize: 10,
-				chunk: function(results) {
-					data.push(results.data[0]);
+				step: function(results) {
+					data.push(results.data);
 				},
 				complete: function() {
 					callback(data);
