@@ -976,12 +976,6 @@ License: MIT
 		{
 			aborted = true;
 		};
-
-		/** Gets the cursor position */
-		this.getCharIndex = function()
-		{
-			return cursor;
-		};
 	}
 
 	/** Makes a deep copy of an array or object (mostly) */

@@ -163,7 +163,7 @@ interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
    */
   chunkSize?: number | undefined;
   /**
-   * A callback to execute if FileReader encounters an error.
+   * A callback to execute if the streamer encounters an error.
    * The function is passed one argument: the error.
    */
   error?(error: Error): void;
