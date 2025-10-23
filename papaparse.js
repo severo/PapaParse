@@ -246,7 +246,7 @@ License: MIT
 				return;
 			}
 
-			// Use chunckSize as it may be a diference on reponse lentgh due to characters with more than 1 byte
+			// Use chunkSize as it may be a diference on reponse length due to characters with more than 1 byte
 			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
 			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
 			this.parseChunk(xhr.responseText);
@@ -884,7 +884,7 @@ License: MIT
 				if (typeof value === 'undefined')
 					value = input.substring(cursor);
 				row.push(value);
-				cursor = inputLen;	// important in case parsing is paused (TODO(SL): not implemented anymore, should we remove?)
+				cursor = inputLen;
 				pushRow(row);
 				if (stepIsFunction)
 					doStep();
