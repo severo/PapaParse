@@ -106,6 +106,7 @@ License: MIT
 			errors: [],
 			meta: {}
 		};
+		this._offset = 0; // The byte offset where parsing started
 		replaceConfig.call(this, config);
 
 		this.parseChunk = function(chunk)
@@ -180,7 +181,9 @@ License: MIT
 		ChunkStreamer.call(this, config);
 
 		var xhr;
-		let start = config.offset ? parseInt(config.offset) : 0;
+		if (config.offset)
+			this._offset = parseInt(config.offset);
+		let start = this._offset;
 
 		this._nextChunk = function()
 		{
@@ -248,7 +251,6 @@ License: MIT
 				return;
 			}
 
-			const firstByte = start;
 			if (this._config.chunkSize) {
 				start += this._config.chunkSize;
 				this._finished = start >= getFileSize(xhr);
