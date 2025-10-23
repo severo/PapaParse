@@ -171,7 +171,7 @@ interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
   chunk?(results: ParseResult<T>, parser: Parser): void;
   /**
    * A callback to execute if FileReader encounters an error.
-   * The function is passed two arguments: the error and the File.
+   * The function is passed one argument: the error.
    */
   error?(error: Error): void;
 }
@@ -191,8 +191,7 @@ export type ParseAsyncConfig<T = any> =
   | ParseAsyncConfigNoStep<T>;
 
 // Remote parsing has options for the backing web request
-interface ParseRemoteConfigBase<T = any>
-  extends ParseAsyncConfigBase<T, string> {
+interface ParseRemoteConfigBase<T = any> extends ParseAsyncConfigBase<T> {
   /**
    * This indicates that the string you passed as the first argument to `parse()`
    * is actually a URL from which to download a file and parse its contents.
@@ -233,7 +232,7 @@ interface ParseRemoteConfigStep<T = any> extends ParseRemoteConfigBase<T> {
 }
 interface ParseRemoteConfigNoStep<T = any> extends ParseRemoteConfigBase<T> {
   /** @inheritdoc */
-  complete(results: ParseResult<T>, file: string): void;
+  complete(results: ParseResult<T>): void;
 }
 
 // Remote parsing is async and thus must specify either `step` or `complete` (but may specify both)

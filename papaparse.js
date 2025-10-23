@@ -152,7 +152,7 @@ License: MIT
 			}
 
 			if (!this._completed && finishedIncludingPreview && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
-				this._config.complete(this._completeResults, this._input);
+				this._config.complete(this._completeResults);
 				this._completed = true;
 			}
 
