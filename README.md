@@ -2,7 +2,7 @@ Parse CSV with JavaScript
 ========================================
 
 This repository is a fork of Papaparse which adds:
-- `firstChunkOffset` configuration option for the parse method, only for the streaming mode, which sets the byte offset of the first chunk to parse. This is useful when resuming a paused parse from a specific byte offset in the file or remote URL.
+- `offset` configuration option for the parse method, only for the streaming mode, which sets the byte offset of the first chunk to parse. This is useful when resuming a paused parse from a specific byte offset in the file or remote URL.
 
 ---
 

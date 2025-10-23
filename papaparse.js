@@ -62,6 +62,7 @@ License: MIT
 	Papa.StringStreamer = StringStreamer;
 
 	// Strip character from UTF-8 BOM encoded files that cause issue parsing the file
+	// Note(SL): take the BOM into account when calculating byte offsets (see the ignoreBOM TextDecoder option too)
 	function stripBom(string) {
 		if (string.charCodeAt(0) === 0xfeff) {
 			return string.slice(1);
@@ -78,8 +79,10 @@ License: MIT
 		if (typeof _input !== 'string') {
 			throw new Error('Input must be a string');
 		}
+		if (!isFunction(_config.step)) {
+			throw new Error('Step function required for async parsing.');
+		}
 
-		_input = stripBom(_input);
 		if (_config.download)
 			streamer = new NetworkStreamer(_config);
 		else
@@ -99,14 +102,8 @@ License: MIT
 		this._input = null;
 		this._baseIndex = 0;
 		this._partialLine = '';
-		this._rowCount = 0;
-		this._start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0; // SL: change to upstream PapaParse
 		this._nextChunk = null;
-		this._completeResults = {
-			data: [],
-			errors: [],
-			meta: {}
-		};
+		this._offset = 0; // The byte offset where parsing started
 		replaceConfig.call(this, config);
 
 		this.parseChunk = function(chunk)
@@ -131,23 +128,14 @@ License: MIT
 				this._baseIndex = lastIndex;
 			}
 
-			if (results && results.data)
-				this._rowCount += results.data.length;
+			var finished = this._finished;
 
-			var finishedIncludingPreview = this._finished || (this._config.preview && this._rowCount >= this._config.preview);
-
-			if (!this._config.step) {
-				this._completeResults.data = this._completeResults.data.concat(results.data);
-				this._completeResults.errors = this._completeResults.errors.concat(results.errors);
-				this._completeResults.meta = results.meta;
-			}
-
-			if (!this._completed && finishedIncludingPreview && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
-				this._config.complete(this._completeResults);
+			if (!this._completed && finished && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
+				this._config.complete();
 				this._completed = true;
 			}
 
-			if (!finishedIncludingPreview)
+			if (!finished)
 				this._nextChunk();
 
 			return results;
@@ -181,6 +169,9 @@ License: MIT
 		ChunkStreamer.call(this, config);
 
 		var xhr;
+		if (config.offset)
+			this._offset = parseInt(config.offset);
+		let start = this._offset;
 
 		this._nextChunk = function()
 		{
@@ -189,7 +180,7 @@ License: MIT
 
 		this.stream = function(url)
 		{
-			this._input = url;
+			this._input = stripBom(url);
 			this._nextChunk();	// Starts streaming
 		};
 
@@ -211,6 +202,8 @@ License: MIT
 			xhr.onload = bindFunction(this._chunkLoaded, this);
 			xhr.onerror = bindFunction(this._chunkError, this);
 
+			// Note(SL): Synchronous XHR (async=false) is deprecated.
+			// Note(SL): Refactor the library with promises/async-await/fetch API in the future.
 			xhr.open(this._config.downloadRequestBody ? 'POST' : 'GET', this._input, false);
 			// Headers can only be set when once the request state is OPENED
 			if (this._config.downloadRequestHeaders)
@@ -225,8 +218,8 @@ License: MIT
 
 			if (this._config.chunkSize)
 			{
-				var end = this._start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
-				xhr.setRequestHeader('Range', 'bytes=' + this._start + '-' + end);
+				var end = start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
+				xhr.setRequestHeader('Range', 'bytes=' + start + '-' + end);
 			}
 
 			try {
@@ -248,9 +241,13 @@ License: MIT
 				return;
 			}
 
-			// Use chunkSize as it may be a diference on reponse length due to characters with more than 1 byte
-			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
-			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
+			if (this._config.chunkSize) {
+				start += this._config.chunkSize;
+				this._finished = start >= getFileSize(xhr);
+			} else {
+				// if no chunkSize, no need to increment start, we are done after this
+				this._finished = true;
+			}
 			this.parseChunk(xhr.responseText);
 		};
 
@@ -281,7 +278,7 @@ License: MIT
 		var remaining;
 		this.stream = function(s)
 		{
-			remaining = s;
+			remaining = stripBom(s);
 			return this._nextChunk();
 		};
 		this._nextChunk = function()
@@ -308,7 +305,6 @@ License: MIT
 	function ParserHandle(_config)
 	{
 		var self = this;
-		var _stepCounter = 0;	// Number of times step was called (number of rows parsed)
 		var _rowCounter = 0;	// Number of rows that have been parsed so far
 		var _input;				// The input being parsed
 		var _parser;			// The core parser being used
@@ -321,33 +317,29 @@ License: MIT
 			meta: {}
 		};
 
-		if (isFunction(_config.step))
-		{
-			var userStep = _config.step;
-			_config.step = function(results)
-			{
-				_results = results;
-
-				if (needsHeaderRow())
-					processResults();
-				else	// only call user's step function after header row
-				{
-					processResults();
-
-					// It's possbile that this line was empty and there's no row here after all
-					if (_results.data.length === 0)
-						return;
-
-					_stepCounter += results.data.length;
-					if (_config.preview && _stepCounter > _config.preview)
-						_parser.abort();
-					else {
-						_results.data = _results.data[0];
-						userStep(_results, self);
-					}
-				}
-			};
+		if (!isFunction(_config.step)) {
+			throw new Error('Step function required for async parsing.');
 		}
+
+		var userStep = _config.step;
+		_config.step = function(results)
+		{
+			_results = results;
+
+			if (needsHeaderRow())
+				processResults();
+			else	// only call user's step function after header row
+			{
+				processResults();
+
+				// It's possible that this line was empty and there's no row here after all
+				if (_results.data.length === 0)
+					return;
+
+				_results.data = _results.data[0];
+				userStep(_results, self);
+			}
+		};
 
 		/**
 		 * Parses input. Most users won't need, and shouldn't mess with, the baseIndex
@@ -380,8 +372,6 @@ License: MIT
 			}
 
 			var parserConfig = copy(_config);
-			if (_config.preview && _config.header)
-				parserConfig.preview++;	// to compensate for header row
 
 			_input = input;
 			_parser = new Parser(parserConfig);
@@ -401,7 +391,7 @@ License: MIT
 			_parser.abort();
 			_results.meta.aborted = true;
 			if (isFunction(_config.complete))
-				_config.complete(_results);
+				_config.complete();
 			_input = '';
 		};
 
@@ -542,42 +532,58 @@ License: MIT
 		}
 
 		function guessDelimiter(input, newline, skipEmptyLines, comments, delimitersToGuess) {
-			var bestDelim, bestDelta, fieldCountPrevRow, maxFieldCount;
+			var bestDelim, bestDelta, maxFieldCount;
 
 			delimitersToGuess = delimitersToGuess || [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP];
 
 			for (var i = 0; i < delimitersToGuess.length; i++) {
 				var delim = delimitersToGuess[i];
-				var delta = 0, avgFieldCount = 0, emptyLinesCount = 0;
-				fieldCountPrevRow = undefined;
+				var delta = 0;
+				let nonEmptyLinesCount = 0;
+				let avgFieldCount = 0;
+				let fieldCountPrevRow;
+				let j = 0;
+				const previewLines = 10;
 
-				var preview = new Parser({
-					comments: comments,
-					delimiter: delim,
-					newline: newline,
-					preview: 10
-				}).parse(input);
+				// eslint-disable-next-line prefer-const
+				let parser;
 
-				for (var j = 0; j < preview.data.length; j++) {
-					if (skipEmptyLines && testEmptyLine(preview.data[j])) {
-						emptyLinesCount++;
-						continue;
+				// eslint-disable-next-line no-loop-func
+				const step = (results) => {
+					if (j >= previewLines) {
+						parser.abort();
+						return;
 					}
-					var fieldCount = preview.data[j].length;
+					const data = results.data[0];
+					if (skipEmptyLines && testEmptyLine(data)) {
+						return;
+					}
+					nonEmptyLinesCount++;
+
+					var fieldCount = data.length;
 					avgFieldCount += fieldCount;
 
 					if (typeof fieldCountPrevRow === 'undefined') {
 						fieldCountPrevRow = fieldCount;
-						continue;
+						return;
 					}
 					else if (fieldCount > 0) {
 						delta += Math.abs(fieldCount - fieldCountPrevRow);
 						fieldCountPrevRow = fieldCount;
 					}
-				}
+					j++;
+				};
 
-				if (preview.data.length > 0)
-					avgFieldCount /= (preview.data.length - emptyLinesCount);
+				parser = new Parser({
+					comments: comments,
+					delimiter: delim,
+					newline: newline,
+					step: step
+				});
+				parser.parse(input);
+
+				if (nonEmptyLinesCount > 0)
+					avgFieldCount /= (nonEmptyLinesCount);
 
 				if ((typeof bestDelta === 'undefined' || delta <= bestDelta)
 					&& (typeof maxFieldCount === 'undefined' || avgFieldCount > maxFieldCount) && avgFieldCount > 1.99) {
@@ -624,7 +630,6 @@ License: MIT
 		var newline = config.newline;
 		var comments = config.comments;
 		var step = config.step;
-		var preview = config.preview;
 		var quoteChar;
 		var renamedHeaders = null;
 		var headerParsed = false;
@@ -659,6 +664,8 @@ License: MIT
 
 		// We're gonna need these at the Parser scope
 		var cursor = 0; // unit: UTF-8 characters
+		// var firstByte = 0; // unit: bytes
+		// var numBytes = 0; // unit: bytes
 		var aborted = false;
 
 		this.parse = function(input, baseIndex, ignoreLastRow)
@@ -784,9 +791,6 @@ License: MIT
 									return returnable();
 							}
 
-							if (preview && data.length >= preview)
-								return returnable(true);
-
 							break;
 						}
 
@@ -842,9 +846,6 @@ License: MIT
 							return returnable();
 					}
 
-					if (preview && data.length >= preview)
-						return returnable(true);
-
 					continue;
 				}
 
@@ -896,8 +897,8 @@ License: MIT
 			/**
 			 * Appends the current row to the results. It sets the cursor
 			 * to newCursor and finds the nextNewline. The caller should
-			 * take care to execute user's step function and check for
-			 * preview and end parsing if necessary.
+			 * take care to execute user's step function and end parsing
+			 * if necessary.
 			 */
 			function saveRow(newCursor)
 			{
@@ -908,7 +909,7 @@ License: MIT
 			}
 
 			/** Returns an object with the results, errors, and meta. */
-			function returnable(stopped)
+			function returnable()
 			{
 				if (config.header && !baseIndex && data.length && !headerParsed)
 				{
@@ -957,7 +958,6 @@ License: MIT
 						delimiter: delim,
 						linebreak: newline,
 						aborted: aborted,
-						truncated: !!stopped,
 						cursor: lastCursor + (baseIndex || 0),
 						renamedHeaders: renamedHeaders
 					}

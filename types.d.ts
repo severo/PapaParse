@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /* copied from
  * https://github.com/DefinitelyTyped/DefinitelyTyped/blob/936968bd3492ce9296d465869dff30bd75999143/types/papaparse/index.d.ts
- * and adapted to add option firstChunkOffset
+ * and adapted to add option offset
  */
 
 export as namespace Papa;
@@ -9,34 +9,14 @@ export as namespace Papa;
 export {}; // Don't export all declarations!
 
 /**
- * Parse remote files
- * @param url the path or URL to the file to download.
- * @param config a config object.
- * @returns Doesn't return anything. Results are provided asynchronously to a callback function.
- */
-// eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-export function parse<T>(url: string, config: ParseRemoteConfig<T>): void;
-/* eslint-enable @definitelytyped/no-unnecessary-generics */
-/**
- * Parse string
- * @param csvString a string of delimited text to be parsed.
- * @param config an optional config object.
- * @returns a parse results object
- */
-export function parse<T>(
-  csvString: string,
-  config?: ParseConfig<T> & { download?: false | undefined }
-): ParseResult<T>;
-/**
  * Parse string or remote files
- * @param source data to be parsed.
+ * @param source the string to be parsed or the URL to the file to download.
  * @param config a config object.
  * @returns Doesn't return anything. Results are provided asynchronously to a callback function.
  */
-export function parse<T>(
+export function parse(
   source: string,
-  config: ParseAsyncConfig<T> &
-    ((ParseConfig<T> & { download?: false | undefined }) | ParseRemoteConfig<T>)
+  config: ParseAsyncConfig & (ParseStringConfig | ParseRemoteConfig)
 ): void;
 
 /**
@@ -75,7 +55,7 @@ export let DefaultDelimiter: string;
  * I have included the API for this class.
  */
 export class Parser {
-  constructor(config: ParseConfig);
+  constructor(config: ParseAsyncConfig);
 
   parse(input: string, baseIndex: number, ignoreLastRow: boolean): any;
 
@@ -86,7 +66,14 @@ export class Parser {
   getCharIndex(): number;
 }
 
-export interface ParseConfig<T = any> {
+export interface ParseAsyncConfig {
+  /**
+   * To stream the input, define a callback function.
+   * Streaming is necessary for large files which would otherwise crash the browser.
+   * You can call parser.abort() to abort parsing.
+   * Mandatory
+   */
+  step(results: ParseResult, parser: Parser): void;
   /**
    * The delimiting character.
    * Leave blank to auto-detect from a list of most common delimiters, or any values passed in through `delimitersToGuess`.
@@ -123,8 +110,6 @@ export interface ParseConfig<T = any> {
    * @default false
    */
   header?: boolean | undefined;
-  /** If > 0, only that many rows will be parsed. */
-  preview?: number | undefined;
   /**
    * A string that indicates a comment (for example, "#" or "//").
    * When Papa encounters a line starting with this string, it will skip the line.
@@ -143,23 +128,8 @@ export interface ParseConfig<T = any> {
    */
   delimitersToGuess?: string[] | undefined;
   /**
-   * To stream the input, define a callback function.
-   * Streaming is necessary for large files which would otherwise crash the browser.
-   * You can call parser.abort() to abort parsing.
-   */
-  step?(results: ParseStepResult<T>, parser: Parser): void;
-  /**
-   * The callback to execute when parsing is complete.
-   * It receives the parse results.
-   * When streaming, parse results are not available in this callback.
-   */
-  complete?(results: ParseResult<T>): void;
-}
-
-// Base interface for all async parsing
-interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
-  /**
    * Overrides `Papa.RemoteChunkSize`.
+   * For string streamer, it's the size in characters of each chunk to be processed, not the size in bytes.
    */
   chunkSize?: number | undefined;
   /**
@@ -167,24 +137,22 @@ interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
    * The function is passed one argument: the error.
    */
   error?(error: Error): void;
+  /**
+   * The callback to execute when parsing is complete.
+   */
+  complete?(): void;
 }
 
-interface ParseAsyncConfigStep<T = any> extends ParseAsyncConfigBase<T> {
-  /** @inheritdoc */
-  step(results: ParseStepResult<T>, parser: Parser): void;
+interface ParseStringConfig {
+  /**
+   * This indicates that the string you passed as the first argument to `parse()`
+   * is the actual CSV text to parse.
+   */
+  download?: false | undefined;
 }
-interface ParseAsyncConfigNoStep<T = any> extends ParseAsyncConfigBase<T> {
-  /** @inheritdoc */
-  complete(results: ParseResult<T>): void;
-}
-
-// Async parsing must specify either `step` or `complete` (but may specify both)
-export type ParseAsyncConfig<T = any> =
-  | ParseAsyncConfigStep<T>
-  | ParseAsyncConfigNoStep<T>;
 
 // Remote parsing has options for the backing web request
-interface ParseRemoteConfigBase<T = any> extends ParseAsyncConfigBase<T> {
+interface ParseRemoteConfig {
   /**
    * This indicates that the string you passed as the first argument to `parse()`
    * is actually a URL from which to download a file and parse its contents.
@@ -216,22 +184,8 @@ interface ParseRemoteConfigBase<T = any> extends ParseAsyncConfigBase<T> {
    * If defined and greater than 0, the first chunk will start at this byte offset in the remote file
    * instead of the beginning of the file.
    */
-  firstChunkOffset?: number | undefined;
+  offset?: number | undefined;
 }
-
-interface ParseRemoteConfigStep<T = any> extends ParseRemoteConfigBase<T> {
-  /** @inheritdoc */
-  step(results: ParseStepResult<T>, parser: Parser): void;
-}
-interface ParseRemoteConfigNoStep<T = any> extends ParseRemoteConfigBase<T> {
-  /** @inheritdoc */
-  complete(results: ParseResult<T>): void;
-}
-
-// Remote parsing is async and thus must specify either `step` or `complete` (but may specify both)
-export type ParseRemoteConfig<T = any> =
-  | ParseRemoteConfigStep<T>
-  | ParseRemoteConfigNoStep<T>;
 
 /** Error structure */
 export interface ParseError {
@@ -261,21 +215,23 @@ export interface ParseMeta {
   aborted: boolean;
   /** Array of field names */
   fields?: string[] | undefined;
-  /** Whether preview consumed all input */
-  truncated: boolean;
   /** Character position after the parsed row */
   cursor: number;
+  /** Byte position where parsing started */
+  firstByte: number;
+  /** Number of bytes parsed, including line breaks, BOM, spaces, etc. */
+  numBytes: number;
 }
 
 /**
  * A parse result always contains three objects: data, errors, and meta.
  * Data and errors are arrays, and meta is an object. In the step callback, the data array will only contain one element.
  */
-export interface ParseStepResult<T> {
+export interface ParseResult {
   /**
    * In the step callback, the data array will only contain one element.
    */
-  data: T;
+  data: string[] | { [key: string]: string }[];
   /** an array of errors. */
   errors: ParseError[];
   /**
@@ -286,21 +242,4 @@ export interface ParseStepResult<T> {
   meta: ParseMeta;
 }
 
-/**
- * A parse result always contains three objects: data, errors, and meta.
- * Data and errors are arrays, and meta is an object. In the step callback, the data array will only contain one element.
- */
-export interface ParseResult<T> {
-  /**
-   * an array of rows. If header is false, rows are arrays; otherwise they are objects of data keyed by the field name.
-   */
-  data: T[];
-  /** an array of errors. */
-  errors: ParseError[];
-  /**
-   * contains extra information about the parse, such as delimiter used,
-   * the newline sequence, whether the process was aborted, etc.
-   * Properties in this object are not guaranteed to exist in all situations.
-   */
-  meta: ParseMeta;
-}
+// TODO(SL): replace with an async iterator?

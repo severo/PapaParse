@@ -32,7 +32,6 @@ function assertLongSampleParsedCorrectly(parsedCsv) {
 		"delimiter": ",",
 		"linebreak": "\n",
 		"aborted": false,
-		"truncated": false,
 		renamedHeaders: null,
 		"cursor": 1209
 	});
@@ -40,82 +39,73 @@ function assertLongSampleParsedCorrectly(parsedCsv) {
 }
 
 describe('PapaParse', function() {
-	it('synchronously parsed CSV should be correctly parsed', function() {
-		assertLongSampleParsedCorrectly(Papa.parse(longSampleRawCsv));
-	});
-
-	it('asynchronously parsed CSV should be correctly parsed', function(done) {
+	it('asynchronously parsed CSV should be correctly parsed', function() {
+		const result = {
+			data: [],
+			errors: [],
+			meta: {}
+		};
 		Papa.parse(longSampleRawCsv, {
-			complete: function(parsedCsv) {
-				assertLongSampleParsedCorrectly(parsedCsv);
-				done();
+			step: function(parsedCsv) {
+				result.data.push(parsedCsv.data);
+				result.errors.push(...parsedCsv.errors);
+				result.meta = parsedCsv.meta;
 			},
 		});
+		assertLongSampleParsedCorrectly(result);
 	});
 
-	it('reports the correct row number on FieldMismatch errors', function(done) {
+	it('reports the correct row number on FieldMismatch errors', function() {
+		const errors = [];
+		const data = [];
 		Papa.parse(verylongSampleRawCsv, {
 			header: true,
-			complete: function(parsedCsv) {
-				assert.deepEqual(parsedCsv.errors, [
-					{
-						"type": "FieldMismatch",
-						"code": "TooFewFields",
-						"message": "Too few fields: expected 3 fields but parsed 2",
-						"row": 498
-					},
-					{
-						"type": "FieldMismatch",
-						"code": "TooFewFields",
-						"message": "Too few fields: expected 3 fields but parsed 2",
-						"row": 998
-					},
-					{
-						"type": "FieldMismatch",
-						"code": "TooFewFields",
-						"message": "Too few fields: expected 3 fields but parsed 2",
-						"row": 1498
-					},
-					{
-						"type": "FieldMismatch",
-						"code": "TooFewFields",
-						"message": "Too few fields: expected 3 fields but parsed 2",
-						"row": 1998
-					},
-					// Note(SL): I had to add this extra error to make the test pass when parsing from string.
-					{
-						"type": "FieldMismatch",
-						"code": "TooFewFields",
-						"message": "Too few fields: expected 3 fields but parsed 1",
-						"row": 2000
-					}
-				]);
-				assert.strictEqual(2001, parsedCsv.data.length); // Note(SL): string returns 2001, not 2000
-				done();
+			step: function(parsedCsv) {
+				data.push(parsedCsv.data);
+				errors.push(...parsedCsv.errors);
 			},
 		});
+		assert.deepEqual(errors, [
+			{
+				"type": "FieldMismatch",
+				"code": "TooFewFields",
+				"message": "Too few fields: expected 3 fields but parsed 2",
+				"row": 498
+			},
+			{
+				"type": "FieldMismatch",
+				"code": "TooFewFields",
+				"message": "Too few fields: expected 3 fields but parsed 2",
+				"row": 998
+			},
+			{
+				"type": "FieldMismatch",
+				"code": "TooFewFields",
+				"message": "Too few fields: expected 3 fields but parsed 2",
+				"row": 1498
+			},
+			{
+				"type": "FieldMismatch",
+				"code": "TooFewFields",
+				"message": "Too few fields: expected 3 fields but parsed 2",
+				"row": 1998
+			},
+			// Note(SL): I had to add this extra error to make the test pass when parsing from string.
+			{
+				"type": "FieldMismatch",
+				"code": "TooFewFields",
+				"message": "Too few fields: expected 3 fields but parsed 1",
+				"row": 2000
+			}
+		]);
+		assert.strictEqual(2001, data.length); // Note(SL): string returns 2001, not 2000
 	});
-
-	// Note(SL): it should handle errors for a string input as well.
-
-	// it('handles errors in step', function(done) {
-	// 	var expectedError = new Error('test');
-	// 	Papa.parse(longSampleRawCsv, {
-	// 		step: function() {
-	// 			throw expectedError;
-	// 		},
-	// 		error: function(err) {
-	// 			assert.deepEqual(err, expectedError);
-	// 			done();
-	// 		}
-	// 	});
-	// });
 
 	it('handles utf-8 BOM encoded files', function(done) {
 		Papa.parse(utf8BomSampleRawCsv, {
 			header: true,
-			complete: function(parsedCsv) {
-				assert.deepEqual(parsedCsv.data[0], { A: 'X', B: 'Y', C: 'Z' });
+			step: function(parsedCsv) {
+				assert.deepEqual(parsedCsv.data, { A: 'X', B: 'Y', C: 'Z' });
 				done();
 			}
 		});

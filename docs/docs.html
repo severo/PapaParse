@@ -186,8 +186,6 @@
 	quoteChar: '"',
 	escapeChar: '"',
 	header: false,
-	preview: 0,
-	encoding: "",
 	comments: false,
 	step: undefined,
 	complete: undefined,
@@ -256,22 +254,6 @@
 							</tr>
 							<tr>
 								<td>
-									<code>preview</code>
-								</td>
-								<td>
-									If &gt; 0, only that many rows will be parsed.
-								</td>
-							</tr>
-							<tr>
-								<td>
-									<code>encoding</code>
-								</td>
-								<td>
-									The encoding to use when opening local files. If specified, it must be a value supported by the FileReader API.
-								</td>
-							</tr>
-							<tr>
-								<td>
 									<code>comments</code>
 								</td>
 								<td>
@@ -296,12 +278,11 @@
 									<code>complete</code>
 								</td>
 								<td>
-									The callback to execute when parsing is complete. It receives the parse <a href="#results">results</a>. If parsing a local file, the <a href="https://developer.mozilla.org/en-US/docs/Web/API/File">File</a> is passed in, too:
+									The callback to execute when parsing is complete:
 
-									<pre><code class="language-javascript">complete: function(results, file) {
-	console.log("Parsing complete:", results, file);
+									<pre><code class="language-javascript">complete: function() {
+	console.log("Parsing complete");
 }</code></pre>
-									When streaming, parse results are <i>not</i> available in this callback.
 								</td>
 							</tr>
 							<tr>
@@ -504,7 +485,6 @@
 	linebreak: // Line break sequence used
 	aborted:   // Whether process was aborted
 	fields:    // Array of field names
-	truncated: // Whether preview consumed all input
 	renamedHeaders: // Headers that are automatically renamed by the library to avoid duplication. {Column 1_1: 'Column 1' // the later header 'Column 1' was renamed to 'Column 1_1'}
 }</code></pre>
 					</div>
