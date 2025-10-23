@@ -79,7 +79,6 @@ License: MIT
 			throw new Error('Input must be a string');
 		}
 
-		_input = stripBom(_input);
 		if (_config.download)
 			streamer = new NetworkStreamer(_config);
 		else
@@ -189,7 +188,7 @@ License: MIT
 
 		this.stream = function(url)
 		{
-			this._input = url;
+			this._input = stripBom(url);
 			this._nextChunk();	// Starts streaming
 		};
 
@@ -248,7 +247,7 @@ License: MIT
 				return;
 			}
 
-			// Use chunkSize as it may be a diference on reponse length due to characters with more than 1 byte
+			// Use chunkSize as it may be a difference on reponse length due to characters with more than 1 byte
 			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
 			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
 			this.parseChunk(xhr.responseText);
@@ -281,7 +280,7 @@ License: MIT
 		var remaining;
 		this.stream = function(s)
 		{
-			remaining = s;
+			remaining = stripBom(s);
 			return this._nextChunk();
 		};
 		this._nextChunk = function()
