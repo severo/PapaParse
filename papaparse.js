@@ -74,14 +74,16 @@ License: MIT
 		_config = _config || {};
 
 		var streamer = null;
-		if (typeof _input === 'string')
-		{
-			_input = stripBom(_input);
-			if (_config.download)
-				streamer = new NetworkStreamer(_config);
-			else
-				streamer = new StringStreamer(_config);
+
+		if (typeof _input !== 'string') {
+			throw new Error('Input must be a string');
 		}
+
+		_input = stripBom(_input);
+		if (_config.download)
+			streamer = new NetworkStreamer(_config);
+		else
+			streamer = new StringStreamer(_config);
 
 		return streamer.stream(_input);
 	}

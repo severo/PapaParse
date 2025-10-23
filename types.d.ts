@@ -263,6 +263,7 @@ export interface ParseMeta {
   fields?: string[] | undefined;
   /** Whether preview consumed all input */
   truncated: boolean;
+  /** Character position after the parsed row */
   cursor: number;
 }
 
