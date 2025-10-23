@@ -555,36 +555,52 @@ License: MIT
 
 			for (var i = 0; i < delimitersToGuess.length; i++) {
 				var delim = delimitersToGuess[i];
-				var delta = 0, avgFieldCount = 0, emptyLinesCount = 0;
-				fieldCountPrevRow = undefined;
+				let delta = 0;
+				let avgFieldCount = 0;
+				let j = 0;
+				let nonEmptyLinesCount = 0;
+				let fieldCountPrevRow;
+				const previewLines = 10;
 
-				var preview = new Parser({
-					comments: comments,
-					delimiter: delim,
-					newline: newline,
-					preview: 10
-				}).parse(input);
+				// eslint-disable-next-line prefer-const
+				let parser;
 
-				for (var j = 0; j < preview.data.length; j++) {
-					if (skipEmptyLines && testEmptyLine(preview.data[j])) {
-						emptyLinesCount++;
-						continue;
+				// eslint-disable-next-line no-loop-func
+				const step = (results) => { // Note(SL): ideally, the parser should be passed to the step function to be able to abort
+					j++;
+					if (j > previewLines) {
+						parser.abort();
+						return;
 					}
-					var fieldCount = preview.data[j].length;
+					const data = results.data[0];
+					if (skipEmptyLines && testEmptyLine(data)) {
+						return;
+					}
+					nonEmptyLinesCount++;
+
+					var fieldCount = data.length;
 					avgFieldCount += fieldCount;
 
 					if (typeof fieldCountPrevRow === 'undefined') {
 						fieldCountPrevRow = fieldCount;
-						continue;
+						return;
 					}
 					else if (fieldCount > 0) {
 						delta += Math.abs(fieldCount - fieldCountPrevRow);
 						fieldCountPrevRow = fieldCount;
 					}
-				}
+				};
 
-				if (preview.data.length > 0)
-					avgFieldCount /= (preview.data.length - emptyLinesCount);
+				parser = new Parser({
+					comments: comments,
+					delimiter: delim,
+					newline: newline,
+					step: step
+				});
+				parser.parse(input);
+
+				if (nonEmptyLinesCount > 0)
+					avgFieldCount /= (nonEmptyLinesCount);
 
 				if ((typeof bestDelta === 'undefined' || delta <= bestDelta)
 					&& (typeof maxFieldCount === 'undefined' || avgFieldCount > maxFieldCount) && avgFieldCount > 1.99) {
