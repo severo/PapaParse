@@ -62,6 +62,7 @@ License: MIT
 	Papa.StringStreamer = StringStreamer;
 
 	// Strip character from UTF-8 BOM encoded files that cause issue parsing the file
+	// Note(SL): take the BOM into account when calculating byte offsets (see the ignoreBOM TextDecoder option too)
 	function stripBom(string) {
 		if (string.charCodeAt(0) === 0xfeff) {
 			return string.slice(1);
@@ -99,7 +100,6 @@ License: MIT
 		this._baseIndex = 0;
 		this._partialLine = '';
 		this._rowCount = 0;
-		this._start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0; // SL: change to upstream PapaParse
 		this._nextChunk = null;
 		this._completeResults = {
 			data: [],
@@ -180,6 +180,7 @@ License: MIT
 		ChunkStreamer.call(this, config);
 
 		var xhr;
+		let _start = config.firstChunkOffset !== undefined && +config.firstChunkOffset > 0 ? +config.firstChunkOffset : 0;
 
 		this._nextChunk = function()
 		{
@@ -224,8 +225,8 @@ License: MIT
 
 			if (this._config.chunkSize)
 			{
-				var end = this._start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
-				xhr.setRequestHeader('Range', 'bytes=' + this._start + '-' + end);
+				var end = _start + this._config.chunkSize - 1;	// minus one because byte range is inclusive
+				xhr.setRequestHeader('Range', 'bytes=' + _start + '-' + end);
 			}
 
 			try {
@@ -248,8 +249,8 @@ License: MIT
 			}
 
 			// Use chunkSize as it may be a difference on reponse length due to characters with more than 1 byte
-			this._start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
-			this._finished = !this._config.chunkSize || this._start >= getFileSize(xhr);
+			_start += this._config.chunkSize ? this._config.chunkSize : xhr.responseText.length;
+			this._finished = !this._config.chunkSize || _start >= getFileSize(xhr);
 			this.parseChunk(xhr.responseText);
 		};
 
