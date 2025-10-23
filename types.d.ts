@@ -160,6 +160,7 @@ export interface ParseConfig<T = any> {
 interface ParseAsyncConfigBase<T = any> extends ParseConfig<T> {
   /**
    * Overrides `Papa.RemoteChunkSize`.
+   * For string streamer, it's the size in characters of each chunk to be processed, not the size in bytes.
    */
   chunkSize?: number | undefined;
   /**
