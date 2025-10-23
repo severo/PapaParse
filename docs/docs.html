@@ -278,12 +278,11 @@
 									<code>complete</code>
 								</td>
 								<td>
-									The callback to execute when parsing is complete. It receives the parse <a href="#results">results</a>. If parsing a local file, the <a href="https://developer.mozilla.org/en-US/docs/Web/API/File">File</a> is passed in, too:
+									The callback to execute when parsing is complete:
 
-									<pre><code class="language-javascript">complete: function(results, file) {
-	console.log("Parsing complete:", results, file);
+									<pre><code class="language-javascript">complete: function() {
+	console.log("Parsing complete");
 }</code></pre>
-									When streaming, parse results are <i>not</i> available in this callback.
 								</td>
 							</tr>
 							<tr>

@@ -79,6 +79,9 @@ License: MIT
 		if (typeof _input !== 'string') {
 			throw new Error('Input must be a string');
 		}
+		if (!isFunction(_config.step)) {
+			throw new Error('Step function required for async parsing.');
+		}
 
 		if (_config.download)
 			streamer = new NetworkStreamer(_config);
@@ -100,11 +103,6 @@ License: MIT
 		this._baseIndex = 0;
 		this._partialLine = '';
 		this._nextChunk = null;
-		this._completeResults = {
-			data: [],
-			errors: [],
-			meta: {}
-		};
 		this._offset = 0; // The byte offset where parsing started
 		replaceConfig.call(this, config);
 
@@ -132,14 +130,8 @@ License: MIT
 
 			var finished = this._finished;
 
-			if (!this._config.step) {
-				this._completeResults.data = this._completeResults.data.concat(results.data);
-				this._completeResults.errors = this._completeResults.errors.concat(results.errors);
-				this._completeResults.meta = results.meta;
-			}
-
 			if (!this._completed && finished && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
-				this._config.complete(this._completeResults);
+				this._config.complete();
 				this._completed = true;
 			}
 
@@ -323,28 +315,29 @@ License: MIT
 			meta: {}
 		};
 
-		if (isFunction(_config.step))
-		{
-			var userStep = _config.step;
-			_config.step = function(results)
-			{
-				_results = results;
-
-				if (needsHeaderRow())
-					processResults();
-				else	// only call user's step function after header row
-				{
-					processResults();
-
-					// It's possbile that this line was empty and there's no row here after all
-					if (_results.data.length === 0)
-						return;
-
-					_results.data = _results.data[0];
-					userStep(_results, self);
-				}
-			};
+		if (!isFunction(_config.step)) {
+			throw new Error('Step function required for async parsing.');
 		}
+
+		var userStep = _config.step;
+		_config.step = function(results)
+		{
+			_results = results;
+
+			if (needsHeaderRow())
+				processResults();
+			else	// only call user's step function after header row
+			{
+				processResults();
+
+				// It's possible that this line was empty and there's no row here after all
+				if (_results.data.length === 0)
+					return;
+
+				_results.data = _results.data[0];
+				userStep(_results, self);
+			}
+		};
 
 		/**
 		 * Parses input. Most users won't need, and shouldn't mess with, the baseIndex
@@ -396,7 +389,7 @@ License: MIT
 			_parser.abort();
 			_results.meta.aborted = true;
 			if (isFunction(_config.complete))
-				_config.complete(_results);
+				_config.complete();
 			_input = '';
 		};
 
@@ -543,20 +536,19 @@ License: MIT
 
 			for (var i = 0; i < delimitersToGuess.length; i++) {
 				var delim = delimitersToGuess[i];
-				let delta = 0;
-				let avgFieldCount = 0;
-				let j = 0;
+				var delta = 0;
 				let nonEmptyLinesCount = 0;
+				let avgFieldCount = 0;
 				let fieldCountPrevRow;
+				let j = 0;
 				const previewLines = 10;
 
 				// eslint-disable-next-line prefer-const
 				let parser;
 
 				// eslint-disable-next-line no-loop-func
-				const step = (results) => { // Note(SL): ideally, the parser should be passed to the step function to be able to abort
-					j++;
-					if (j > previewLines) {
+				const step = (results) => {
+					if (j >= previewLines) {
 						parser.abort();
 						return;
 					}
@@ -577,6 +569,7 @@ License: MIT
 						delta += Math.abs(fieldCount - fieldCountPrevRow);
 						fieldCountPrevRow = fieldCount;
 					}
+					j++;
 				};
 
 				parser = new Parser({
@@ -669,6 +662,8 @@ License: MIT
 
 		// We're gonna need these at the Parser scope
 		var cursor = 0; // unit: UTF-8 characters
+		// var firstByte = 0; // unit: bytes
+		// var numBytes = 0; // unit: bytes
 		var aborted = false;
 
 		this.parse = function(input, baseIndex, ignoreLastRow)
@@ -912,7 +907,7 @@ License: MIT
 			}
 
 			/** Returns an object with the results, errors, and meta. */
-			function returnable(stopped)
+			function returnable()
 			{
 				if (config.header && !baseIndex && data.length && !headerParsed)
 				{
@@ -961,7 +956,6 @@ License: MIT
 						delimiter: delim,
 						linebreak: newline,
 						aborted: aborted,
-						truncated: !!stopped,
 						cursor: lastCursor + (baseIndex || 0),
 						renamedHeaders: renamedHeaders
 					}

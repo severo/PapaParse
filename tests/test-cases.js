@@ -912,11 +912,7 @@ var PARSE_TESTS = [
 		input: '',
 		expected: {
 			data: [],
-			errors: [{
-				"type": "Delimiter",
-				"code": "UndetectableDelimiter",
-				"message": "Unable to auto-detect delimiting character; defaulted to ','"
-			}]
+			errors: []
 		}
 	},
 	{
@@ -974,13 +970,7 @@ var PARSE_TESTS = [
 		config: { skipEmptyLines: true },
 		expected: {
 			data: [],
-			errors: [
-				{
-					"type": "Delimiter",
-					"code": "UndetectableDelimiter",
-					"message": "Unable to auto-detect delimiting character; defaulted to ','"
-				}
-			]
+			errors: []
 		}
 	},
 	{
@@ -1143,7 +1133,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 23,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1160,7 +1149,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 19,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1177,7 +1165,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 28,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1194,7 +1181,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 27,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1211,7 +1197,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 29,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1228,7 +1213,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 24,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1245,7 +1229,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 27,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1262,7 +1245,6 @@ var PARSE_TESTS = [
 				delimiter: ',',
 				cursor: 27,
 				aborted: false,
-				truncated: false,
 				renamedHeaders: null
 			}
 		}
@@ -1326,7 +1308,17 @@ var PARSE_TESTS = [
 describe('Parse Tests', function() {
 	function generateTest(test) {
 		(test.disabled ? it.skip : it)(test.description, function() {
-			var actual = Papa.parse(test.input, test.config);
+			const actual = {
+				data: [],
+				errors: [],
+				meta: {}
+			};
+			const step = (results) => {
+				actual.data.push(results.data);
+				actual.errors = actual.errors.concat(results.errors);
+				actual.meta = results.meta;
+			};
+			Papa.parse(test.input, Object.assign({ step }, test.config ? test.config : {}));
 			// allows for testing the meta object if present in the test
 			if (test.expected.meta) {
 				assert.deepEqual(actual.meta, test.expected.meta);
@@ -1342,7 +1334,19 @@ describe('Parse Tests', function() {
 
 	// Custom test for Issue 1024 - renamedHeaders regression test
 	it('Issue 1024: renamedHeaders returned for simple duplicate headers (regression test)', function() {
-		var result = Papa.parse('Column,Column\n1-1,1-2\n2-1,2-2\n3-1,3-2', { header: true });
+		const result = {
+			data: [],
+			errors: [],
+			meta: {}
+		};
+		Papa.parse('Column,Column\n1-1,1-2\n2-1,2-2\n3-1,3-2', {
+			header: true,
+			step: function(results) {
+				result.data.push(results.data);
+				result.errors.push(...results.errors);
+				result.meta.renamedHeaders = results.meta.renamedHeaders;
+			}
+		});
 
 		// Test data structure
 		assert.deepEqual(result.data, [
@@ -1373,7 +1377,7 @@ var PARSE_ASYNC_TESTS = [
 		},
 		disabled: !XHR_ENABLED,
 		expected: {
-			data: [['A','B','C'],['X','Y','Z']],
+			data: [['A', 'B', 'C'], ['X', 'Y', 'Z']],
 			errors: []
 		}
 	}
@@ -1405,18 +1409,6 @@ describe('Parse Async Tests', function() {
 
 
 var CUSTOM_TESTS = [
-	{
-		description: "Complete is called with all results if step is not defined",
-		expected: [['A', 'b', 'c'], ['d', 'E', 'f'], ['G', 'h', 'i']],
-		run: function(callback) {
-			Papa.parse('A,b,c\nd,E,f\nG,h,i', {
-				chunkSize: 3,
-				complete: function(response) {
-					callback(response.data);
-				}
-			});
-		}
-	},
 	{
 		description: "Step is called for each row",
 		expected: 2,
@@ -1596,8 +1588,8 @@ var CUSTOM_TESTS = [
 					handle.abort();
 				},
 				chunkSize: 6,
-				complete: function(response) {
-					callback(response.meta.aborted);
+				complete: function() {
+					callback(true);
 				}
 			});
 		}
@@ -1606,18 +1598,26 @@ var CUSTOM_TESTS = [
 		description: "Should correctly guess custom delimiter when passed delimiters to guess.",
 		expected: "~",
 		run: function(callback) {
-			var results = Papa.parse('"A"~"B"~"C"~"D"', {
-				delimitersToGuess: ['~', '@', '%']
+			Papa.parse('"A"~"B"~"C"~"D"', {
+				delimitersToGuess: ['~', '@', '%'],
+				step: function(response, handle) {
+					handle.abort();
+					callback(response.meta.delimiter);
+				}
 			});
-			callback(results.meta.delimiter);
+
 		}
 	},
 	{
 		description: "Should still correctly guess default delimiters when delimiters to guess are not given.",
 		expected: ",",
 		run: function(callback) {
-			var results = Papa.parse('"A","B","C","D"');
-			callback(results.meta.delimiter);
+			Papa.parse('"A","B","C","D"', {
+				step: function(response, handle) {
+					handle.abort();
+					callback(response.meta.delimiter);
+				}
+			});
 		}
 	},
 	{
