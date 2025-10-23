@@ -1388,10 +1388,15 @@ describe('Parse Async Tests', function() {
 		(test.disabled ? it.skip : it)(test.description, function(done) {
 			var config = test.config;
 
-			config.complete = function(actual) {
-				assert.deepEqual(actual.errors, test.expected.errors);
-				assert.deepEqual(actual.data, test.expected.data);
-				done();
+			const actual = {
+				data: [],
+				errors: [],
+				meta: {}
+			};
+			config.step = function(result) {
+				actual.data.push(result.data);
+				actual.errors = result.errors.concat(result.errors);
+				actual.meta = result.meta;
 			};
 
 			config.error = function(err) {
@@ -1399,6 +1404,10 @@ describe('Parse Async Tests', function() {
 			};
 
 			Papa.parse(test.input, config);
+
+			assert.deepEqual(actual.errors, test.expected.errors);
+			assert.deepEqual(actual.data, test.expected.data);
+			done();
 		});
 	}
 
@@ -1670,7 +1679,12 @@ describe('Custom Tests', function() {
 				self.addEventListener("message", function(event) {
 					if (event.data === "ExecuteParse") {
 						// Perform our synchronous parse, as requested
-						const results = Papa.parse('x\\ny\\n');
+						const results = {data: []};
+						Papa.parse('x\\ny\\n', {
+							step: function(result) {
+								results.data.push(result.data);
+							}
+						});
 						postMessage({type: "ParseExecutedSuccessfully", results});
 					} else {
 						// Otherwise, send whatever we received back. We shouldn't be hitting this (!) If we're reached
