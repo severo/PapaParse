@@ -101,21 +101,6 @@ describe('PapaParse', function() {
 		assert.strictEqual(2001, data.length); // Note(SL): string returns 2001, not 2000
 	});
 
-	// Note(SL): it should handle errors for a string input as well.
-
-	// it('handles errors in step', function(done) {
-	// 	var expectedError = new Error('test');
-	// 	Papa.parse(longSampleRawCsv, {
-	// 		step: function() {
-	// 			throw expectedError;
-	// 		},
-	// 		error: function(err) {
-	// 			assert.deepEqual(err, expectedError);
-	// 			done();
-	// 		}
-	// 	});
-	// });
-
 	it('handles utf-8 BOM encoded files', function(done) {
 		Papa.parse(utf8BomSampleRawCsv, {
 			header: true,
