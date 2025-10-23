@@ -99,7 +99,6 @@ License: MIT
 		this._input = null;
 		this._baseIndex = 0;
 		this._partialLine = '';
-		this._rowCount = 0;
 		this._nextChunk = null;
 		this._completeResults = {
 			data: [],
@@ -131,10 +130,7 @@ License: MIT
 				this._baseIndex = lastIndex;
 			}
 
-			if (results && results.data)
-				this._rowCount += results.data.length;
-
-			var finishedIncludingPreview = this._finished || (this._config.preview && this._rowCount >= this._config.preview);
+			var finished = this._finished;
 
 			if (!this._config.step) {
 				this._completeResults.data = this._completeResults.data.concat(results.data);
@@ -142,12 +138,12 @@ License: MIT
 				this._completeResults.meta = results.meta;
 			}
 
-			if (!this._completed && finishedIncludingPreview && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
+			if (!this._completed && finished && isFunction(this._config.complete) && (!results || !results.meta.aborted)) {
 				this._config.complete(this._completeResults);
 				this._completed = true;
 			}
 
-			if (!finishedIncludingPreview)
+			if (!finished)
 				this._nextChunk();
 
 			return results;
@@ -315,7 +311,6 @@ License: MIT
 	function ParserHandle(_config)
 	{
 		var self = this;
-		var _stepCounter = 0;	// Number of times step was called (number of rows parsed)
 		var _rowCounter = 0;	// Number of rows that have been parsed so far
 		var _input;				// The input being parsed
 		var _parser;			// The core parser being used
@@ -345,13 +340,8 @@ License: MIT
 					if (_results.data.length === 0)
 						return;
 
-					_stepCounter += results.data.length;
-					if (_config.preview && _stepCounter > _config.preview)
-						_parser.abort();
-					else {
-						_results.data = _results.data[0];
-						userStep(_results, self);
-					}
+					_results.data = _results.data[0];
+					userStep(_results, self);
 				}
 			};
 		}
@@ -387,8 +377,6 @@ License: MIT
 			}
 
 			var parserConfig = copy(_config);
-			if (_config.preview && _config.header)
-				parserConfig.preview++;	// to compensate for header row
 
 			_input = input;
 			_parser = new Parser(parserConfig);
@@ -549,7 +537,7 @@ License: MIT
 		}
 
 		function guessDelimiter(input, newline, skipEmptyLines, comments, delimitersToGuess) {
-			var bestDelim, bestDelta, fieldCountPrevRow, maxFieldCount;
+			var bestDelim, bestDelta, maxFieldCount;
 
 			delimitersToGuess = delimitersToGuess || [',', '\t', '|', ';', Papa.RECORD_SEP, Papa.UNIT_SEP];
 
@@ -647,7 +635,6 @@ License: MIT
 		var newline = config.newline;
 		var comments = config.comments;
 		var step = config.step;
-		var preview = config.preview;
 		var quoteChar;
 		var renamedHeaders = null;
 		var headerParsed = false;
@@ -807,9 +794,6 @@ License: MIT
 									return returnable();
 							}
 
-							if (preview && data.length >= preview)
-								return returnable(true);
-
 							break;
 						}
 
@@ -865,9 +849,6 @@ License: MIT
 							return returnable();
 					}
 
-					if (preview && data.length >= preview)
-						return returnable(true);
-
 					continue;
 				}
 
@@ -919,8 +900,8 @@ License: MIT
 			/**
 			 * Appends the current row to the results. It sets the cursor
 			 * to newCursor and finds the nextNewline. The caller should
-			 * take care to execute user's step function and check for
-			 * preview and end parsing if necessary.
+			 * take care to execute user's step function and end parsing
+			 * if necessary.
 			 */
 			function saveRow(newCursor)
 			{

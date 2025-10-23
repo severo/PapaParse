@@ -123,8 +123,6 @@ export interface ParseConfig<T = any> {
    * @default false
    */
   header?: boolean | undefined;
-  /** If > 0, only that many rows will be parsed. */
-  preview?: number | undefined;
   /**
    * A string that indicates a comment (for example, "#" or "//").
    * When Papa encounters a line starting with this string, it will skip the line.
@@ -262,8 +260,6 @@ export interface ParseMeta {
   aborted: boolean;
   /** Array of field names */
   fields?: string[] | undefined;
-  /** Whether preview consumed all input */
-  truncated: boolean;
   /** Character position after the parsed row */
   cursor: number;
 }
